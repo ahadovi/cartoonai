@@ -7,7 +7,7 @@ const NumberInput = (props) => {
       <input
         {...props}
         type="number"
-        className="px-4 py-2.5 border-2 border-primary rounded-md w-full"
+        className="px-4 py-2.5 border-2 border-primary rounded-md w-full bg-white"
         step="any"
       />
     </div>

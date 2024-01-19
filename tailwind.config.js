@@ -29,9 +29,9 @@ export default {
         label: ["18px", { lineHeight: "25px" }],
       },
       colors: {
-        body: "#F0ECE5",
+        body: "#fafafa",
+        navLink: "#f4f4f5",
         primary: "#161A30",
-        textColor: "#31304D",
       },
       animation: {},
       keyframes: {},

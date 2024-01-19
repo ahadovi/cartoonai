@@ -6,7 +6,7 @@ const TextAreaInput = (props) => {
       <InputLabel label={props.label} />
       <textarea
         {...props}
-        className="px-4 py-2.5 border-2 border-primary rounded-md w-full min-h-[120px]"
+        className="px-4 py-2.5 border-2 border-primary rounded-md w-full min-h-[120px] bg-white"
       />
     </div>
   );
