@@ -1,0 +1,9 @@
+node_modules
+.vscode
+.gitignore
+.husky
+.idea
+.github
+.DS_Store
+README.md
+LICENSE

@@ -1,15 +1,25 @@
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
 import { Fragment, useEffect, useState } from "react";
 import diceImage from "./assets/images/seed-button.png";
 import Controlnet from "./components/Controlnet";
+import ContronetArgCard from "./components/ContronetArgCard";
+import EnableHr from "./components/EnableHr";
 import NumberInput from "./components/NumberInput";
 import SelectInput from "./components/SelectInput";
 import TextAreaInput from "./components/TextAreaInput";
 import TextInput from "./components/TextInput";
-import optionsData from "./constant/optionDatas";
-import cn from "./utils/index";
+import {
+  interfaceTypeData,
+  modelNameData,
+  vaeNameData,
+} from "./constant/optionDatas";
+import { ButtonLoaderSpinner } from "./ui/icons";
 
 const App = () => {
-  const [hrEnable, setHrEnable] = useState(true);
+  const [hrEnable, setHrEnable] = useState(false);
+  const [loadind, setLoading] = useState(false);
 
   //== Input State
   const [inferenceType, setInferenceType] = useState("txt2img");
@@ -31,9 +41,11 @@ const App = () => {
   const [model, setModel] = useState("control_v11p_sd15_lineart");
   const [weight, setWeight] = useState(0.75);
 
-  //==Create JSON File
+  //= Create JSON File
   const [jsonFile, setJsonFile] = useState({});
-  const [argArr, setArgArr] = useState([
+
+  //= Controlnet Args Array CURD
+  const [controlnetArgArr, setControlnetArgArr] = useState([
     {
       module: module,
       model: model,
@@ -41,20 +53,19 @@ const App = () => {
     },
   ]);
 
-  const pushArgArr = () => {
-    setArgArr((prev) => [
-      ...prev,
-      { module: "ovi", model: "hasib", weight: 0.85 },
+  const handleAddContronetArg = () => {
+    setControlnetArgArr((prevArg) => [
+      ...prevArg,
+      { module: module, model: model, weight: weight },
     ]);
   };
 
-  const [demoArr, setDemoArr] = useState([]);
-  const handleArr = () => {
-    setDemoArr((prev) => [...prev, `a`]);
+  const handleDeleteContronetArg = (cardId) => {
+    let newControlnetArgArr = controlnetArgArr.filter((_, i) => cardId !== i);
+    setControlnetArgArr(newControlnetArgArr);
   };
 
-  console.log(demoArr);
-
+  //= Default Value Of jSON file
   useEffect(() => {
     setJsonFile({
       inference_type: inferenceType,
@@ -74,7 +85,7 @@ const App = () => {
         hr_second_pass_steps: hrSecondPassSteps,
         alwayson_scripts: {
           controlnet: {
-            args: argArr,
+            args: controlnetArgArr,
           },
         },
       },
@@ -94,30 +105,79 @@ const App = () => {
     hrScale,
     hrUpscaler,
     hrSecondPassSteps,
-    argArr,
+    controlnetArgArr,
   ]);
 
-  //== Image Preview
-  const [previewImage, setPreviewImage] = useState(
-    "https://placehold.co/400x400"
+  //= Respose Image Preview
+  const [outputImage, setOutputImage] = useState(
+    "https://placehold.co/500x500"
   );
+
+  //== Image Preview
+  const [previewImages, setPreviewImages] = useState([]);
   const [uploadImage, setUploadImage] = useState("");
   const changePreviewImage = (e) => {
-    const [file] = e.target.files;
-    if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-      setUploadImage(file);
+    let images = [];
+    for (let i = 0; i < e.target.files.length; i++) {
+      images.push(URL.createObjectURL(e.target.files[i]));
     }
+    setPreviewImages(images);
+    setUploadImage(e.target.files);
   };
 
-  const handleSubmit = (e) => {
+  const handleDeleteImage = (imgId) => {
+    let newpreviewImages = previewImages.filter((_, i) => imgId !== i);
+    setPreviewImages(newpreviewImages);
+  };
+
+  //= Submit form json and images
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    console.log(jsonFile);
+    //= Create json file
+    const jsonString = JSON.stringify(jsonFile, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    //= Create Form Data
+    const formData = new FormData();
+    formData.append("json_data", blob, "sample_json_file.json");
+    if (uploadImage) {
+      for (let i = 0; i < uploadImage.length; i++) {
+        formData.append("image", uploadImage[i]);
+      }
+    }
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_POST_API_ENDPOINT,
+        formData
+      );
+      setOutputImage(`${response?.data["Download link"][0]}`);
+      setLoading(false);
+      window.scroll({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      alert("Something went wrong.Please try again!");
+    }
   };
 
   return (
     <div className="container">
-      <div className="flex gap-8 items-start">
-        <div className="bg-white p-6 rounded my-6 w-3/5">
+      <div className="md:flex md:gap-8 md:items-start">
+        <div className="bg-white p-3 rounded my-6 shadow-md shadow-slate-300 md:hidden">
+          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
+          <img
+            src={outputImage}
+            alt="response image"
+            id="responseImage"
+            className="max-w-full h-auto rounded"
+          />
+        </div>
+        <div className="bg-white p-3 md:p-6 rounded my-6 md:w-3/5 shadow-md shadow-slate-300">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-x-4">
               <div className="w-1/2">
@@ -126,14 +186,14 @@ const App = () => {
                   label="Interface Type"
                   value={inferenceType}
                   onChange={(e) => setInferenceType(e.target.value)}
-                  optionData={optionsData[0].interfaceType}
+                  optiondata={interfaceTypeData}
                 />
               </div>
               <div className="w-1/2">
                 <SelectInput
                   name="model_name"
                   label="Model Name"
-                  optionData={optionsData[1].modelName}
+                  optiondata={modelNameData}
                   value={modelName}
                   onChange={(e) => setModelName(e.target.value)}
                 />
@@ -145,7 +205,7 @@ const App = () => {
                 <SelectInput
                   name="vae_name"
                   label="Vae Name"
-                  optionData={optionsData[2].vaeName}
+                  optiondata={vaeNameData}
                   value={vaeName}
                   onChange={(e) => setVaeName(e.target.value)}
                 />
@@ -169,7 +229,7 @@ const App = () => {
               onChange={(e) => setNegativePrompt(e.target.value)}
             />
 
-            <div className="flex items-center gap-x-4">
+            <div className="flex items-end gap-x-4">
               <div className="w-1/2 flex items-end gap-x-2">
                 <NumberInput
                   label="Seed"
@@ -181,7 +241,7 @@ const App = () => {
                 <button
                   id="seedBtn"
                   type="button"
-                  className="w-[48px] h-[48px] rounded-md p-1 bg-primary flex-[0_0_48px] mb-4"
+                  className="w-[40px] h-[40px] flex-[0_0_40px] md:w-[48px] md:h-[48px] rounded-md p-1 bg-primary md:flex-[0_0_48px] mb-3 md:mb-4"
                   onClick={() => setSeed(-1)}
                 >
                   <img src={diceImage} alt="Seed button" />
@@ -229,125 +289,114 @@ const App = () => {
                   onChange={(e) => setDenoisingStrength(Number(e.target.value))}
                 />
               </div>
-              <div className="w-1/2">
-                <button
-                  type="button"
-                  className={cn(
-                    "bg-primary px-4 py-3 mb-4 text-white rounded-md w-full font-medium",
-                    hrEnable ? "bg-green-700" : "bg-primary"
-                  )}
-                  onClick={() => setHrEnable(!hrEnable)}
-                >
-                  Enable Hr ?
-                </button>
-              </div>
             </div>
 
-            <div
-              className={cn(
-                "border-2 border-green-800 rounded-md p-4 pb-0 transition-all duration-300",
-                hrEnable ? "opacity-1 visible" : "opacity-0 invisible"
-              )}
-            >
-              <div className="flex items-center gap-x-4">
-                <div className="w-1/2">
-                  <NumberInput
-                    label="Hr Scale"
-                    placeholder="Enter Hr Scale"
-                    name="hr_scale"
-                    value={Number(hrScale)}
-                    onChange={(e) => setHrScale(Number(e.target.value))}
-                  />
-                </div>
-                <div className="w-1/2">
-                  <NumberInput
-                    label="Hr Second Pass Steps"
-                    placeholder="Enter Hr Second Pass Steps"
-                    name="hr_second_pass_steps"
-                    value={Number(hrSecondPassSteps)}
-                    onChange={(e) =>
-                      setHrSecondPassSteps(Number(e.target.value))
-                    }
-                  />
-                </div>
+            <EnableHr
+              handleEnableHr={() => setHrEnable(!hrEnable)}
+              hrEnable={hrEnable}
+              hrScale={hrScale}
+              setHrScale={(e) => setHrScale(Number(e.target.value))}
+              hrSecondPassSteps={hrSecondPassSteps}
+              setHrSecondPassSteps={(e) =>
+                setHrSecondPassSteps(Number(e.target.value))
+              }
+              hrUpscaler={hrUpscaler}
+              setHrUpscaler={(e) => setHrUpscaler(e.target.value)}
+            />
+
+            <div className="my-6">
+              <h4 className="text-xl font-medium">Contronet Argument List:</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                {controlnetArgArr &&
+                  controlnetArgArr?.map((item, i) => (
+                    <Fragment key={i}>
+                      <ContronetArgCard
+                        moduleName={item?.module}
+                        modelName={item?.model}
+                        weight={item?.weight}
+                        deleteControlnetArg={() => handleDeleteContronetArg(i)}
+                      />
+                    </Fragment>
+                  ))}
               </div>
-              <TextInput
-                label="Hr Upscaler"
-                name="hr_upscaler"
-                placeholder="Enter Hr Upscaler"
-                value={hrUpscaler}
-                onChange={(e) => setHrUpscaler(e.target.value)}
+
+              <Controlnet
+                module={module}
+                setModule={(e) => setModule(e.target.value)}
+                model={model}
+                setModel={(e) => setModel(e.target.value)}
+                weight={weight}
+                setWeight={(e) => setWeight(e.target.value)}
+                addControlnet={handleAddContronetArg}
               />
             </div>
 
-            <div className="my-6 ">
-              <h4 className="text-xl font-bold">Contronet:</h4>
-              <button
-                onClick={handleArr}
-                className="bg-primary text-white font-medium rounded px-4 py-3 mt-4"
-              >
-                Add Controlnet
-              </button>
-            </div>
-
-            {demoArr &&
-              demoArr.map((item, i) => (
-                <Fragment key={i}>
-                  <Controlnet
-                    moduleOptionData={optionsData[3].module}
-                    modelOptionData={optionsData[4].model}
-                    module={module}
-                    setModule={(e) => setModule(e.target.value)}
-                    model={model}
-                    setModel={(e) => setModel(e.target.value)}
-                    weight={weight}
-                    setWeight={(e) => setWeight(e.target.value)}
-                  />
-                </Fragment>
-              ))}
-
             <div className="mt-5">
-              <div className="mb-6 md:w-1/2">
-                <img
-                  src={previewImage}
-                  alt="Upload Preview Image"
-                  id="previewImage"
-                  className="max-w-full h-auto max-h-[400px]"
-                  crossOrigin="anonymous"
-                />
+              <div className="mb-6 grid grid-cols-3 gap-4">
+                {previewImages &&
+                  previewImages?.map((previewImage, i) => (
+                    <div
+                      className="bg-navLink rounded-md overflow-hidden relative"
+                      key={i}
+                    >
+                      <img
+                        src={previewImage}
+                        alt="Upload Preview Image"
+                        id="previewImage"
+                        className="max-w-full h-auto max-h-[400px]"
+                        crossOrigin="anonymous"
+                      />
+                      <button
+                        onClick={() => handleDeleteImage(i)}
+                        className="p-2 text-xs rounded bg-red-600 text-white leading-none absolute top-2 right-2"
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
+                    </div>
+                  ))}
               </div>
-              <div className="mb-3 md:w-1/2">
+            </div>
+            <div className="md:flex md:items-end md:gap-x-4">
+              <div className="md:w-1/2">
                 <label
                   htmlFor="images"
                   className="block font-medium mb-2 text-xl"
                 >
-                  Select Image
+                  Select Image / Images
                 </label>
                 <input
                   required
                   type="file"
                   accept="image/*"
+                  multiple
                   id="images"
                   name="images"
                   onChange={changePreviewImage}
-                  className="px-4 py-2.5 border-2 border-primary rounded-md w-full"
+                  className="px-2.5 py-1.5 md:px-4 md:py-2.5 border-2 border-primary rounded-md w-full"
                 />
               </div>
+              <div className="w-full md:w-1/2 text-end">
+                <button
+                  type="submit"
+                  disabled={loadind}
+                  className="bg-primary w-full mt-5 px-3 py-3 md:mt-0 md:px-5 md:py-3.5 rounded text-white font-medium md:text-xl inline-flex justify-center items-center disabled:bg-primary/[0.75] md:w-[200px]"
+                >
+                  {loadind ? (
+                    <>
+                      <ButtonLoaderSpinner /> Submit
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
+                </button>
+              </div>
             </div>
-            <button
-              type="submit"
-              id="submitBtn"
-              className="bg-primary px-5 py-3 rounded text-white font-medium text-xl disabled:bg-slate-600"
-            >
-              Submit
-            </button>
           </form>
-
-          <button onClick={pushArgArr}>push</button>
         </div>
-        <div className="bg-white p-6 rounded my-6 w-2/5">
+        <div className="bg-white p-6 rounded my-6 md:w-2/5 shadow-md shadow-slate-300 hidden md:block">
+          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
           <img
-            src="https://placehold.co/500x500"
+            src={outputImage}
             alt="response image"
             id="responseImage"
             className="max-w-full h-auto rounded"
