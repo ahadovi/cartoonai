@@ -1,4 +1,4 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 
@@ -12,7 +12,7 @@ const ContronetArgCard = (props) => {
           onClick={deleteControlnetArg}
           type="button"
         >
-          <FontAwesomeIcon icon={faTrash} />
+          <FontAwesomeIcon icon={faTrashAlt} />
         </button>
       </div>
       <span className="block mb-1.5">

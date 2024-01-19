@@ -1,3 +1,6 @@
+import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import axios from "axios";
 import { Fragment, useEffect, useState } from "react";
 import diceImage from "./assets/images/seed-button.png";
 import Controlnet from "./components/Controlnet";
@@ -12,9 +15,11 @@ import {
   modelNameData,
   vaeNameData,
 } from "./constant/optionDatas";
+import { ButtonLoaderSpinner } from "./ui/icons";
 
 const App = () => {
   const [hrEnable, setHrEnable] = useState(false);
+  const [loadind, setLoading] = useState(false);
 
   //== Input State
   const [inferenceType, setInferenceType] = useState("txt2img");
@@ -103,6 +108,11 @@ const App = () => {
     controlnetArgArr,
   ]);
 
+  //= Respose Image Preview
+  const [outputImage, setOutputImage] = useState(
+    "https://placehold.co/500x500"
+  );
+
   //== Image Preview
   const [previewImages, setPreviewImages] = useState([]);
   const [uploadImage, setUploadImage] = useState("");
@@ -115,14 +125,59 @@ const App = () => {
     setUploadImage(e.target.files);
   };
 
-  const handleSubmit = (e) => {
+  const handleDeleteImage = (imgId) => {
+    let newpreviewImages = previewImages.filter((_, i) => imgId !== i);
+    setPreviewImages(newpreviewImages);
+  };
+
+  //= Submit form json and images
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    console.log(jsonFile);
+    //= Create json file
+    const jsonString = JSON.stringify(jsonFile, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    //= Create Form Data
+    const formData = new FormData();
+    formData.append("json_data", blob, "sample_json_file.json");
+    if (uploadImage) {
+      for (let i = 0; i < uploadImage.length; i++) {
+        formData.append("image", uploadImage[i]);
+      }
+    }
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_POST_API_ENDPOINT,
+        formData
+      );
+      setOutputImage(`${response?.data["Download link"][0]}`);
+      setLoading(false);
+      window.scroll({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      alert("Something went wrong.Please try again!");
+    }
   };
 
   return (
     <div className="container">
-      <div className="flex gap-8 items-start">
-        <div className="bg-white p-6 rounded my-6 w-3/5 shadow-md shadow-slate-300">
+      <div className="md:flex md:gap-8 md:items-start">
+        <div className="bg-white p-3 rounded my-6 shadow-md shadow-slate-300 md:hidden">
+          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
+          <img
+            src={outputImage}
+            alt="response image"
+            id="responseImage"
+            className="max-w-full h-auto rounded"
+          />
+        </div>
+        <div className="bg-white p-3 md:p-6 rounded my-6 md:w-3/5 shadow-md shadow-slate-300">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-x-4">
               <div className="w-1/2">
@@ -174,7 +229,7 @@ const App = () => {
               onChange={(e) => setNegativePrompt(e.target.value)}
             />
 
-            <div className="flex items-center gap-x-4">
+            <div className="flex items-end gap-x-4">
               <div className="w-1/2 flex items-end gap-x-2">
                 <NumberInput
                   label="Seed"
@@ -186,7 +241,7 @@ const App = () => {
                 <button
                   id="seedBtn"
                   type="button"
-                  className="w-[48px] h-[48px] rounded-md p-1 bg-primary flex-[0_0_48px] mb-4"
+                  className="w-[40px] h-[40px] flex-[0_0_40px] md:w-[48px] md:h-[48px] rounded-md p-1 bg-primary md:flex-[0_0_48px] mb-3 md:mb-4"
                   onClick={() => setSeed(-1)}
                 >
                   <img src={diceImage} alt="Seed button" />
@@ -281,7 +336,7 @@ const App = () => {
                 {previewImages &&
                   previewImages?.map((previewImage, i) => (
                     <div
-                      className="bg-navLink rounded-md overflow-hidden"
+                      className="bg-navLink rounded-md overflow-hidden relative"
                       key={i}
                     >
                       <img
@@ -291,6 +346,12 @@ const App = () => {
                         className="max-w-full h-auto max-h-[400px]"
                         crossOrigin="anonymous"
                       />
+                      <button
+                        onClick={() => handleDeleteImage(i)}
+                        className="p-2 text-xs rounded bg-red-600 text-white leading-none absolute top-2 right-2"
+                      >
+                        <FontAwesomeIcon icon={faTrashAlt} />
+                      </button>
                     </div>
                   ))}
               </div>
@@ -311,23 +372,31 @@ const App = () => {
                   id="images"
                   name="images"
                   onChange={changePreviewImage}
-                  className="px-4 py-2.5 border-2 border-primary rounded-md w-full"
+                  className="px-2.5 py-1.5 md:px-4 md:py-2.5 border-2 border-primary rounded-md w-full"
                 />
               </div>
               <div className="w-full md:w-1/2 text-end">
                 <button
                   type="submit"
-                  className="bg-primary w-full mt-3 md:mt-0 px-5 py-3.5 rounded text-white font-medium text-xl disabled:bg-slate-600 md:w-[200px]"
+                  disabled={loadind}
+                  className="bg-primary w-full mt-5 px-3 py-3 md:mt-0 md:px-5 md:py-3.5 rounded text-white font-medium md:text-xl inline-flex justify-center items-center disabled:bg-primary/[0.75] md:w-[200px]"
                 >
-                  Submit
+                  {loadind ? (
+                    <>
+                      <ButtonLoaderSpinner /> Submit
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
                 </button>
               </div>
             </div>
           </form>
         </div>
-        <div className="bg-white p-6 rounded my-6 w-2/5 shadow-md shadow-slate-300">
+        <div className="bg-white p-6 rounded my-6 md:w-2/5 shadow-md shadow-slate-300 hidden md:block">
+          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
           <img
-            src="https://placehold.co/500x500"
+            src={outputImage}
             alt="response image"
             id="responseImage"
             className="max-w-full h-auto rounded"

@@ -15,7 +15,7 @@ const Controlnet = (props) => {
     addControlnet,
   } = props;
   return (
-    <div className="bg-navLink px-6 py-4 rounded-md mt-4">
+    <div className="bg-navLink p-3 md:px-6 md:py-4 rounded-md mt-4">
       <div className="grid grid-cols-2 gap-x-4">
         <SelectInput
           name="module"

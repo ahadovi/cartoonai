@@ -1,7 +1,7 @@
 const InputLabel = ({ label = "", labelId = "" }) => {
   return (
     <label
-      className="block text-label text-textColor font-medium mb-2.5"
+      className="block md:text-base text-textColor font-medium mb-2 md:mb-2.5 text-sm"
       htmlFor={labelId}
     >
       {label}

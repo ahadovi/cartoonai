@@ -7,7 +7,7 @@ const TextInput = (props) => {
       <input
         type="text"
         {...props}
-        className="px-4 py-2.5 border-2 border-primary rounded-md w-full"
+        className="px-2.5 py-1.5 md:px-4 md:py-2.5 border-2 border-primary rounded-md w-full"
       />
     </div>
   );

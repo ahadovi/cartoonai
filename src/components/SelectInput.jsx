@@ -7,7 +7,7 @@ const SelectInput = (props) => {
       <InputLabel label={label} />
       <select
         {...props}
-        className="px-4 py-2.5 border-2 border-primary rounded-md w-full bg-white"
+        className="px-2.5 py-1.5 md:px-4 md:py-2.5 border-2 border-primary rounded-md w-full bg-white"
       >
         {optiondata &&
           optiondata?.map((item) => (
