@@ -1,7 +1,7 @@
-import React from "react";
+import { hrUpScalerData } from "../constant/optionDatas";
 import cn from "../utils";
 import NumberInput from "./NumberInput";
-import TextInput from "./TextInput";
+import SelectInput from "./SelectInput";
 const EnableHr = (props) => {
   const {
     handleEnableHr,
@@ -52,10 +52,10 @@ const EnableHr = (props) => {
             />
           </div>
         </div>
-        <TextInput
+        <SelectInput
           label="Hr Upscaler"
           name="hr_upscaler"
-          placeholder="Enter Hr Upscaler"
+          optiondata={hrUpScalerData}
           value={hrUpscaler}
           onChange={setHrUpscaler}
           disabled={!hrEnable}

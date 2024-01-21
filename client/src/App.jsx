@@ -2,24 +2,27 @@ import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { Fragment, useEffect, useState } from "react";
-import diceImage from "./assets/images/seed-button.png";
 import Controlnet from "./components/Controlnet";
 import ContronetArgCard from "./components/ContronetArgCard";
 import EnableHr from "./components/EnableHr";
 import NumberInput from "./components/NumberInput";
+import OutputResult from "./components/OutputResult";
+import Seed from "./components/Seed";
 import SelectInput from "./components/SelectInput";
 import TextAreaInput from "./components/TextAreaInput";
-import TextInput from "./components/TextInput";
 import {
   interfaceTypeData,
   modelNameData,
+  samplerNameData,
   vaeNameData,
 } from "./constant/optionDatas";
 import { ButtonLoaderSpinner } from "./ui/icons";
+import { formatMilliseconds } from "./utils";
 
 const App = () => {
   const [hrEnable, setHrEnable] = useState(false);
-  const [loadind, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [processTime, setProcessTime] = useState("00:00");
 
   //== Input State
   const [inferenceType, setInferenceType] = useState("txt2img");
@@ -108,9 +111,9 @@ const App = () => {
     controlnetArgArr,
   ]);
 
-  //= Respose Image Preview
+  //= Response Image Preview
   const [outputImage, setOutputImage] = useState(
-    "https://placehold.co/500x500"
+    "https://placehold.co/700x500?text=Placeholder+output+image"
   );
 
   //== Image Preview
@@ -126,15 +129,16 @@ const App = () => {
   };
 
   const handleDeleteImage = (imgId) => {
-    let newpreviewImages = previewImages.filter((_, i) => imgId !== i);
-    setPreviewImages(newpreviewImages);
+    let newPreviewImages = previewImages.filter((_, i) => imgId !== i);
+    setPreviewImages(newPreviewImages);
   };
 
   //= Submit form json and images
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(jsonFile);
+    const startTime = performance.now();
+
     //= Create json file
     const jsonString = JSON.stringify(jsonFile, null, 2);
     const blob = new Blob([jsonString], { type: "application/json" });
@@ -152,10 +156,12 @@ const App = () => {
         import.meta.env.VITE_POST_API_ENDPOINT,
         formData
       );
-
-      console.log("response ", response);
       setOutputImage(`${response?.data["Download link"][0]}`);
       setLoading(false);
+      const endTime = performance.now();
+      const requestDuration = endTime - startTime;
+      setProcessTime(formatMilliseconds(requestDuration));
+      //= Scroll top
       window.scroll({
         top: 0,
         behavior: "smooth",
@@ -163,9 +169,7 @@ const App = () => {
     } catch (error) {
       setLoading(false);
       if (error.response) {
-        const errorMessage = `Error: ${error.response.data?.detail}\nStatus code: ${
-          error.response.status
-        }`;
+        const errorMessage = `Error: ${error.response.data?.detail}\nStatus code: ${error.response.status}`;
         alert(errorMessage);
       } else if (error.request) {
         alert("No response received for the request");
@@ -179,13 +183,11 @@ const App = () => {
   return (
     <div className="container">
       <div className="md:flex md:gap-8 md:items-start">
-        <div className="bg-white p-3 rounded my-6 shadow-md shadow-slate-300 md:hidden">
-          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
-          <img
-            src={outputImage}
-            alt="response image"
-            id="responseImage"
-            className="max-w-full h-auto rounded"
+        <div className="md:hidden">
+          <OutputResult
+            outputImage={outputImage}
+            processTime={processTime}
+            loading={loading}
           />
         </div>
         <div className="bg-white p-3 md:p-6 rounded my-6 md:w-3/5 shadow-md shadow-slate-300">
@@ -221,16 +223,15 @@ const App = () => {
                   onChange={(e) => setVaeName(e.target.value)}
                 />
               </div>
-              <div className="w-1/2">
-                <TextInput
-                  label="Prompt"
-                  name="prompt"
-                  placeholder="Enter prompt"
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                />
-              </div>
             </div>
+
+            <TextAreaInput
+              label="Prompt"
+              name="prompt"
+              placeholder="Enter prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
 
             <TextAreaInput
               label="Negative Prompt"
@@ -240,24 +241,13 @@ const App = () => {
               onChange={(e) => setNegativePrompt(e.target.value)}
             />
 
+            <Seed
+              seed={Number(seed)}
+              setSeed={(e) => setSeed(Number(e.target.value))}
+              seedNegativeBtn={() => setSeed(-1)}
+            />
+
             <div className="flex items-end gap-x-4">
-              <div className="w-1/2 flex items-end gap-x-2">
-                <NumberInput
-                  label="Seed"
-                  placeholder="Enter seed"
-                  name="seed"
-                  value={Number(seed)}
-                  onChange={(e) => setSeed(Number(e.target.value))}
-                />
-                <button
-                  id="seedBtn"
-                  type="button"
-                  className="w-[40px] h-[40px] flex-[0_0_40px] md:w-[48px] md:h-[48px] rounded-md p-1 bg-primary md:flex-[0_0_48px] mb-3 md:mb-4"
-                  onClick={() => setSeed(-1)}
-                >
-                  <img src={diceImage} alt="Seed button" />
-                </button>
-              </div>
               <div className="w-1/2">
                 <NumberInput
                   label="Steps"
@@ -267,9 +257,6 @@ const App = () => {
                   onChange={(e) => setSteps(Number(e.target.value))}
                 />
               </div>
-            </div>
-
-            <div className="flex items-center gap-x-4">
               <div className="w-1/2">
                 <NumberInput
                   label="CFG Scale"
@@ -279,18 +266,18 @@ const App = () => {
                   onChange={(e) => setCfgScale(Number(e.target.value))}
                 />
               </div>
+            </div>
+
+            <div className="flex items-center gap-x-4">
               <div className="w-1/2">
-                <TextInput
+                <SelectInput
                   label="Sampler Name"
                   name="sampler_name"
-                  placeholder="Enter Sampler Name"
+                  optiondata={samplerNameData}
                   value={samplerName}
                   onChange={(e) => setSamplerName(e.target.value)}
                 />
               </div>
-            </div>
-
-            <div className="flex items-end gap-x-4">
               <div className="w-1/2">
                 <NumberInput
                   label="Denoising Strength"
@@ -316,7 +303,7 @@ const App = () => {
             />
 
             <div className="my-6">
-              <h4 className="text-xl font-medium">Contronet Argument List:</h4>
+              <h4 className="text-xl font-medium">Controlnet Argument List:</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                 {controlnetArgArr &&
                   controlnetArgArr?.map((item, i) => (
@@ -359,6 +346,7 @@ const App = () => {
                       />
                       <button
                         onClick={() => handleDeleteImage(i)}
+                        type="button"
                         className="p-2 text-xs rounded bg-red-600 text-white leading-none absolute top-2 right-2"
                       >
                         <FontAwesomeIcon icon={faTrashAlt} />
@@ -389,10 +377,10 @@ const App = () => {
               <div className="w-full md:w-1/2 text-end">
                 <button
                   type="submit"
-                  disabled={loadind}
+                  disabled={loading}
                   className="bg-primary w-full mt-5 px-3 py-3 md:mt-0 md:px-5 md:py-3.5 rounded text-white font-medium md:text-xl inline-flex justify-center items-center disabled:bg-primary/[0.75] md:w-[200px]"
                 >
-                  {loadind ? (
+                  {loading ? (
                     <>
                       <ButtonLoaderSpinner /> Submit
                     </>
@@ -404,13 +392,11 @@ const App = () => {
             </div>
           </form>
         </div>
-        <div className="bg-white p-6 rounded my-6 md:w-2/5 shadow-md shadow-slate-300 hidden md:block">
-          <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
-          <img
-            src={outputImage}
-            alt="response image"
-            id="responseImage"
-            className="max-w-full h-auto rounded"
+        <div className="md:w-2/5 hidden md:block">
+          <OutputResult
+            outputImage={outputImage}
+            processTime={processTime}
+            loading={loading}
           />
         </div>
       </div>

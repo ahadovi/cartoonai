@@ -2,7 +2,7 @@ import InputLabel from "./InputLabel";
 
 const NumberInput = (props) => {
   return (
-    <div className="mb-3 md:mb-4 block">
+    <div className="mb-3 md:mb-4 block w-full">
       <InputLabel label={props.label} />
       <input
         {...props}
