@@ -30,8 +30,9 @@ export default {
       },
       colors: {
         body: "#fafafa",
-        navLink: "#f4f4f5",
-        primary: "#161A30",
+        navLink: "#f6f6f7",
+        primary: "#1D2B53",
+        textColor: "#3c3c43",
       },
       animation: {},
       keyframes: {},

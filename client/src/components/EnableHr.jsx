@@ -1,6 +1,7 @@
 import { hrUpScalerData } from "../constant/optionDatas";
 import cn from "../utils";
 import NumberInput from "./NumberInput";
+import RangeInput from "./RangeInput";
 import SelectInput from "./SelectInput";
 const EnableHr = (props) => {
   const {
@@ -32,23 +33,27 @@ const EnableHr = (props) => {
       <div className="">
         <div className="flex items-center gap-x-4">
           <div className="w-1/2">
-            <NumberInput
+            <RangeInput
               label="Hr Scale"
-              placeholder="Enter Hr Scale"
               name="hr_scale"
               value={Number(hrScale)}
+              shownValue={Number(hrScale)}
               onChange={setHrScale}
               disabled={!hrEnable}
+              min={0}
+              max={4}
             />
           </div>
           <div className="w-1/2">
             <NumberInput
-              label="Hr Second Pass Steps"
+              label="Hr Second Pass Steps (max: 150)"
               placeholder="Enter Hr Second Pass Steps"
               name="hr_second_pass_steps"
               value={Number(hrSecondPassSteps)}
               onChange={setHrSecondPassSteps}
               disabled={!hrEnable}
+              min={1}
+              max={150}
             />
           </div>
         </div>

@@ -1,15 +1,15 @@
-import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import { Fragment, useEffect, useState } from "react";
-import Controlnet from "./components/Controlnet";
-import ContronetArgCard from "./components/ContronetArgCard";
+import { useEffect, useState } from "react";
 import EnableHr from "./components/EnableHr";
+import FileImageInput from "./components/FileImageInput";
 import NumberInput from "./components/NumberInput";
 import OutputResult from "./components/OutputResult";
+import RangeInput from "./components/RangeInput";
 import Seed from "./components/Seed";
 import SelectInput from "./components/SelectInput";
 import TextAreaInput from "./components/TextAreaInput";
+import ControlNet from "./components/controlnet/ControlNet";
+import ControlNetArgCard from "./components/controlnet/ControlNetArgCard";
 import {
   interfaceTypeData,
   modelNameData,
@@ -40,32 +40,112 @@ const App = () => {
   const [hrScale, setHrScale] = useState(1.2);
   const [hrUpscaler, setHrUpscaler] = useState("Latent (nearest-exact)");
   const [hrSecondPassSteps, setHrSecondPassSteps] = useState(15);
-  const [module, setModule] = useState("lineart_standard");
-  const [model, setModel] = useState("control_v11p_sd15_lineart");
-  const [weight, setWeight] = useState(0.75);
+  // const [module, setModule] = useState("lineart_standard");
+  // const [model, setModel] = useState("control_v11p_sd15_lineart");
+  // const [weight, setWeight] = useState(0.75);
 
   //= Create JSON File
   const [jsonFile, setJsonFile] = useState({});
 
-  //= Controlnet Args Array CURD
-  const [controlnetArgArr, setControlnetArgArr] = useState([
-    {
-      module: module,
-      model: model,
-      weight: weight,
-    },
-  ]);
+  //= ControlNet Area
+  const [enableControlNet, setEnableControlNet] = useState(false);
+  const [enablePixelPerfect, setEnablePixelPerfect] = useState(false);
+  const [controlnetArgArr, setControlnetArgArr] = useState([]);
+  //= ControlTet Arg One inputs
+  const [controlNetArgOneObj, setControlNetArgOneObj] = useState({
+    argOneModule: "lineart_standard",
+    argOneModel: "control_v11p_sd15_lineart",
+    argOneWeight: Number(0.75),
+    argOneGuidanceStart: Number(0.2),
+    argOneGuidanceEnd: Number(0.9),
+  });
 
-  const handleAddContronetArg = () => {
-    setControlnetArgArr((prevArg) => [
-      ...prevArg,
-      { module: module, model: model, weight: weight },
+  const handleControlNetOneChange = (e) => {
+    const { name, value } = e.target;
+    setControlNetArgOneObj((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleAddControlNetOne = () => {
+    setControlnetArgArr((prev) => [
+      ...prev,
+      {
+        module: controlNetArgOneObj?.argOneModule,
+        model: controlNetArgOneObj?.argOneModel,
+        weight: controlNetArgOneObj?.argOneWeight,
+        guidance_start: controlNetArgOneObj?.argOneGuidanceStart,
+        guidance_end: controlNetArgOneObj?.argOneGuidanceEnd,
+      },
     ]);
   };
 
-  const handleDeleteContronetArg = (cardId) => {
-    let newControlnetArgArr = controlnetArgArr.filter((_, i) => cardId !== i);
-    setControlnetArgArr(newControlnetArgArr);
+  const handleRemoveControlNetItem = (indexId) => {
+    const newControlNetArgArr = controlnetArgArr.filter(
+      (_, i) => indexId !== i
+    );
+    setControlnetArgArr(newControlNetArgArr);
+  };
+
+  //= ControlTet Arg Two inputs
+  const [controlNetArgTwoObj, setControlNetArgTwoObj] = useState({
+    argTwoModule: "lineart_standard",
+    argTwoModel: "control_v11p_sd15_lineart",
+    argTwoWeight: Number(0.5),
+    argTwoGuidanceStart: Number(0),
+    argTwoGuidanceEnd: Number(0.45),
+  });
+
+  const handleControlNetTwoChange = (e) => {
+    const { name, value } = e.target;
+    setControlNetArgTwoObj((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleAddControlNetTwo = () => {
+    setControlnetArgArr((prev) => [
+      ...prev,
+      {
+        module: controlNetArgTwoObj?.argTwoModule,
+        model: controlNetArgTwoObj?.argTwoModel,
+        weight: controlNetArgTwoObj?.argTwoWeight,
+        guidance_start: controlNetArgTwoObj?.argTwoGuidanceStart,
+        guidance_end: controlNetArgTwoObj?.argTwoGuidanceEnd,
+      },
+    ]);
+  };
+
+  //= ControlTet Arg Three inputs
+  const [controlNetArgThreeObj, setControlNetArgThreeObj] = useState({
+    argThreeModule: "lineart_standard",
+    argThreeModel: "control_v11p_sd15_lineart",
+    argThreeWeight: Number(1.25),
+    argThreeGuidanceStart: Number(0),
+    argThreeGuidanceEnd: Number(0.12),
+  });
+
+  const handleControlNetThreeChange = (e) => {
+    const { name, value } = e.target;
+    setControlNetArgThreeObj((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleAddControlNetThree = () => {
+    setControlnetArgArr((prev) => [
+      ...prev,
+      {
+        module: controlNetArgThreeObj?.argThreeModule,
+        model: controlNetArgThreeObj?.argThreeModel,
+        weight: controlNetArgThreeObj?.argThreeWeight,
+        guidance_start: controlNetArgThreeObj?.argThreeGuidanceStart,
+        guidance_end: controlNetArgThreeObj?.argThreeGuidanceEnd,
+      },
+    ]);
   };
 
   //= Default Value Of jSON file
@@ -86,11 +166,14 @@ const App = () => {
         hr_scale: hrScale,
         hr_upscaler: hrUpscaler,
         hr_second_pass_steps: hrSecondPassSteps,
-        alwayson_scripts: {
-          controlnet: {
-            args: controlnetArgArr,
-          },
-        },
+        pixel_perfect: enablePixelPerfect,
+        alwayson_scripts: enableControlNet
+          ? {
+              controlnet: {
+                args: controlnetArgArr,
+              },
+            }
+          : {},
       },
     });
   }, [
@@ -109,6 +192,8 @@ const App = () => {
     hrUpscaler,
     hrSecondPassSteps,
     controlnetArgArr,
+    enableControlNet,
+    enablePixelPerfect,
   ]);
 
   //= Response Image Preview
@@ -117,20 +202,16 @@ const App = () => {
   );
 
   //== Image Preview
-  const [previewImages, setPreviewImages] = useState([]);
-  const [uploadImage, setUploadImage] = useState("");
-  const changePreviewImage = (e) => {
-    let images = [];
-    for (let i = 0; i < e.target.files.length; i++) {
-      images.push(URL.createObjectURL(e.target.files[i]));
+  const [previewImage, setPreviewImage] = useState("");
+  const [uploadImage, setUploadImage] = useState([]);
+  const changePreviewImage = (evt) => {
+    const { name } = evt.target;
+    const file = evt.target.files[0];
+    console.log(file);
+    if (file) {
+      setPreviewImage(URL.createObjectURL(file));
+      setUploadImage((prev) => [...prev, file]);
     }
-    setPreviewImages(images);
-    setUploadImage(e.target.files);
-  };
-
-  const handleDeleteImage = (imgId) => {
-    let newPreviewImages = previewImages.filter((_, i) => imgId !== i);
-    setPreviewImages(newPreviewImages);
   };
 
   //= Submit form json and images
@@ -180,6 +261,9 @@ const App = () => {
     }
   };
 
+  // console.log(uploadImage, previewImage);
+  console.log(controlnetArgArr);
+
   return (
     <div className="container">
       <div className="md:flex md:gap-8 md:items-start">
@@ -213,7 +297,7 @@ const App = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-x-4">
+            <div className="flex items-start gap-x-4">
               <div className="w-1/2">
                 <SelectInput
                   name="vae_name"
@@ -224,6 +308,17 @@ const App = () => {
                 />
               </div>
             </div>
+
+            {inferenceType === "img2img" ? (
+              <div className="w-1/2 mb-4">
+                <h3 className="font-medium mb-3">Select image:</h3>
+                <FileImageInput
+                  previewImage={previewImages[0]}
+                  onChange={changePreviewImage}
+                  loading={loading}
+                />
+              </div>
+            ) : null}
 
             <TextAreaInput
               label="Prompt"
@@ -250,11 +345,13 @@ const App = () => {
             <div className="flex items-end gap-x-4">
               <div className="w-1/2">
                 <NumberInput
-                  label="Steps"
+                  label="Steps (max: 150)"
                   placeholder="Enter Steps"
                   name="steps"
                   value={Number(steps)}
                   onChange={(e) => setSteps(Number(e.target.value))}
+                  min={1}
+                  max={150}
                 />
               </div>
               <div className="w-1/2">
@@ -279,11 +376,13 @@ const App = () => {
                 />
               </div>
               <div className="w-1/2">
-                <NumberInput
+                <RangeInput
                   label="Denoising Strength"
-                  placeholder="Enter Denoising Strength"
-                  name="denoising_strength"
                   value={Number(denoisingStrength)}
+                  shownValue={Number(denoisingStrength)}
+                  name="denoising_strength"
+                  min={0}
+                  max={1}
                   onChange={(e) => setDenoisingStrength(Number(e.target.value))}
                 />
               </div>
@@ -303,92 +402,101 @@ const App = () => {
             />
 
             <div className="my-6">
-              <h4 className="text-xl font-medium">Controlnet Argument List:</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                {controlnetArgArr &&
-                  controlnetArgArr?.map((item, i) => (
-                    <Fragment key={i}>
-                      <ContronetArgCard
-                        moduleName={item?.module}
-                        modelName={item?.model}
-                        weight={item?.weight}
-                        deleteControlnetArg={() => handleDeleteContronetArg(i)}
-                      />
-                    </Fragment>
-                  ))}
-              </div>
-
-              <Controlnet
-                module={module}
-                setModule={(e) => setModule(e.target.value)}
-                model={model}
-                setModel={(e) => setModel(e.target.value)}
-                weight={weight}
-                setWeight={(e) => setWeight(e.target.value)}
-                addControlnet={handleAddContronetArg}
-              />
-            </div>
-
-            <div className="mt-5">
-              <div className="mb-6 grid grid-cols-3 gap-4">
-                {previewImages &&
-                  previewImages?.map((previewImage, i) => (
-                    <div
-                      className="bg-navLink rounded-md overflow-hidden relative"
-                      key={i}
-                    >
-                      <img
-                        src={previewImage}
-                        alt="Upload Preview Image"
-                        id="previewImage"
-                        className="max-w-full h-auto max-h-[400px]"
-                        crossOrigin="anonymous"
-                      />
-                      <button
-                        onClick={() => handleDeleteImage(i)}
-                        type="button"
-                        className="p-2 text-xs rounded bg-red-600 text-white leading-none absolute top-2 right-2"
-                      >
-                        <FontAwesomeIcon icon={faTrashAlt} />
-                      </button>
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="md:flex md:items-end md:gap-x-4">
-              <div className="md:w-1/2">
-                <label
-                  htmlFor="images"
-                  className="block font-medium mb-2 text-xl"
-                >
-                  Select Image / Images
-                </label>
-                <input
-                  required
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  id="images"
-                  name="images"
-                  onChange={changePreviewImage}
-                  className="px-2.5 py-1.5 md:px-4 md:py-2.5 border-2 border-primary rounded-md w-full"
+              <ControlNet
+                enableControlNet={enableControlNet}
+                handleControlNet={() => setEnableControlNet(!enableControlNet)}
+                enablePixelPerfect={enablePixelPerfect}
+                handleEnablePixelPerfect={() =>
+                  setEnablePixelPerfect(!enablePixelPerfect)
+                }
+              >
+                <ControlNetArgCard
+                  module={controlNetArgOneObj?.argOneModule}
+                  model={controlNetArgOneObj?.argOneModel}
+                  setModel={handleControlNetOneChange}
+                  setModule={handleControlNetOneChange}
+                  weight={controlNetArgOneObj?.argOneWeight}
+                  setWeight={handleControlNetOneChange}
+                  guidanceStart={controlNetArgOneObj?.argOneGuidanceStart}
+                  setGuidanceStart={handleControlNetOneChange}
+                  guidanceEnd={controlNetArgOneObj?.argOneGuidanceEnd}
+                  setGuidanceEnd={handleControlNetOneChange}
+                  addControlnetArg={handleAddControlNetOne}
+                  removeControlnetArg={() => handleRemoveControlNetItem(0)}
+                  previewImage={previewImage}
+                  imageOnChange={changePreviewImage}
+                  loading={loading}
+                  imageName="argOneImage"
+                  moduleName="argOneModule"
+                  modelName="argOneModel"
+                  weightName="argOneWeight"
+                  guidanceStartName="argOneGuidanceStart"
+                  guidanceEndName="argOneGuidanceEnd"
                 />
-              </div>
-              <div className="w-full md:w-1/2 text-end">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="bg-primary w-full mt-5 px-3 py-3 md:mt-0 md:px-5 md:py-3.5 rounded text-white font-medium md:text-xl inline-flex justify-center items-center disabled:bg-primary/[0.75] md:w-[200px]"
-                >
-                  {loading ? (
-                    <>
-                      <ButtonLoaderSpinner /> Submit
-                    </>
-                  ) : (
-                    "Submit"
-                  )}
-                </button>
-              </div>
+                <ControlNetArgCard
+                  module={controlNetArgTwoObj?.argTwoModule}
+                  model={controlNetArgTwoObj?.argTwoModel}
+                  setModel={handleControlNetTwoChange}
+                  setModule={handleControlNetTwoChange}
+                  weight={controlNetArgTwoObj?.argTwoWeight}
+                  setWeight={handleControlNetTwoChange}
+                  guidanceStart={controlNetArgTwoObj?.argTwoGuidanceStart}
+                  setGuidanceStart={handleControlNetTwoChange}
+                  guidanceEnd={controlNetArgTwoObj?.argTwoGuidanceEnd}
+                  setGuidanceEnd={handleControlNetTwoChange}
+                  addControlnetArg={handleAddControlNetTwo}
+                  removeControlnetArg={() => handleRemoveControlNetItem(1)}
+                  previewImage={previewImage}
+                  imageOnChange={changePreviewImage}
+                  loading={loading}
+                  imageName="argTwoImage"
+                  moduleName="argTwoModule"
+                  modelName="argTwoModel"
+                  weightName="argTwoWeight"
+                  guidanceStartName="argTwoGuidanceStart"
+                  guidanceEndName="argTwoGuidanceEnd"
+                />
+
+                <ControlNetArgCard
+                  module={controlNetArgThreeObj?.argThreeModule}
+                  model={controlNetArgThreeObj?.argThreeModel}
+                  setModel={handleControlNetThreeChange}
+                  setModule={handleControlNetThreeChange}
+                  weight={controlNetArgThreeObj?.argThreeWeight}
+                  setWeight={handleControlNetThreeChange}
+                  guidanceStart={controlNetArgThreeObj?.argThreeGuidanceStart}
+                  setGuidanceStart={handleControlNetThreeChange}
+                  guidanceEnd={controlNetArgThreeObj?.argThreeGuidanceEnd}
+                  setGuidanceEnd={handleControlNetThreeChange}
+                  addControlnetArg={handleAddControlNetThree}
+                  removeControlnetArg={() => handleRemoveControlNetItem(2)}
+                  // previewImage={previewImage}
+                  // imageOnChange={imageOnChange}
+                  // loading={loading}
+                  imageName="argThreeImage"
+                  moduleName="argThreeModule"
+                  modelName="argThreeModel"
+                  weightName="argThreeWeight"
+                  guidanceStartName="argThreeGuidanceStart"
+                  guidanceEndName="argThreeGuidanceEnd"
+                />
+              </ControlNet>
+            </div>
+
+            <div className="text-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-primary w-full mt-5 px-3 py-3 md:mt-0 md:px-5 md:py-3.5 rounded text-white font-medium md:text-xl inline-flex justify-center items-center disabled:bg-primary/[0.75] md:w-[200px]"
+              >
+                {loading ? (
+                  <>
+                    <ButtonLoaderSpinner /> Submit
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </button>
             </div>
           </form>
         </div>
