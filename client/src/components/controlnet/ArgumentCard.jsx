@@ -6,21 +6,21 @@ const ArgumentCard = (props) => {
     cardImg,
     deleteArgumentCard,
     weight,
-    moduleName,
-    modelName,
+    module,
+    model,
     guidanceStart,
     guidanceEnd,
   } = props;
   return (
     <div className="bg-navLink p-3 rounded-md flex gap-x-2">
-      <div className="w-1/5 rounded-md overflow-hidden bg-secondary basis-1/5">
+      <div className="w-2/6 rounded-md overflow-hidden bg-secondary basis-2/6 shrink-0 grow-0">
         <img
           src={cardImg}
           alt="Control Net Argument thumb"
           className="block max-w-full"
         />
       </div>
-      <div className="w-4/5">
+      <div className="w-4/6">
         <div className="px-4 py-2.5 rounded-md bg-navLink relative">
           <div className="flex items-center gap-x-2 absolute top-2 right-2">
             <button
@@ -44,11 +44,10 @@ const ArgumentCard = (props) => {
             <span className="text-sm">{guidanceEnd}</span>
           </span>
           <span className="block mb-1.5">
-            <strong>Module:</strong>{" "}
-            <span className="text-sm">{moduleName}</span>
+            <strong>Module:</strong> <span className="text-sm">{module}</span>
           </span>
           <span className="block mb-1.5">
-            <strong>Model:</strong> <span className="text-sm">{modelName}</span>
+            <strong>Model:</strong> <span className="text-sm">{model}</span>
           </span>
         </div>
       </div>

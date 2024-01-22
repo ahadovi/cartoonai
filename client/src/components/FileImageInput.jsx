@@ -3,30 +3,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import cn from "../utils";
 
 const FileImageInput = (props) => {
-  const {
-    previewImage,
-    onChange,
-    loading,
-    deletePreviewImage,
-    imageName = "",
-  } = props;
+  const { previewImage, onChange, disabled, deletePreviewImage } = props;
   return (
     <label
-      htmlFor="argImageOne"
       className={cn(
-        "flex items-center justify-center w-full min-h-[300px] relative rounded-md overflow-hidden bg-[#D6CC99]",
+        "flex items-center justify-center w-full min-h-[300px] mb-3 relative rounded-md overflow-hidden bg-[#D6CC99]",
         previewImage && "bg-navLink"
       )}
     >
       <input
         type="file"
-        id="argImageOne"
-        name={imageName}
         className="w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer"
         accept="image/*"
         required
         onChange={onChange}
-        disabled={loading}
+        disabled={disabled}
       />
       {previewImage ? (
         <div className="block relative">

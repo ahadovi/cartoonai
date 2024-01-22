@@ -15,7 +15,7 @@ const EnableHr = (props) => {
     setHrUpscaler,
   } = props;
   return (
-    <div className="mt-4 p-3 md:p-4 pb-1 rounded-md bg-navLink">
+    <div className="p-3 border-2 border-secondary rounded-md mt-5">
       <button
         type="button"
         className="bg-primary px-4 py-3 mb-4 text-white rounded-md font-medium flex items-center gap-x-3"
@@ -30,7 +30,7 @@ const EnableHr = (props) => {
         ></span>
       </button>
 
-      <div className="">
+      <div className="bg-navLink p-3 pb-0.5 rounded-md">
         <div className="flex items-center gap-x-4">
           <div className="w-1/2">
             <RangeInput

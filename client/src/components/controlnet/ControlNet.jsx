@@ -9,7 +9,7 @@ const ControlNet = (props) => {
   } = props;
   return (
     <div className="p-3 border-2 border-secondary rounded-md mt-5">
-      <div className="flex items-center gap-x-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <button
           className="bg-primary px-4 py-3 text-white rounded-md font-medium flex items-center gap-x-3"
           type="button"
@@ -24,9 +24,10 @@ const ControlNet = (props) => {
           ></span>
         </button>
         <button
-          className="bg-primary px-4 py-3 text-white rounded-md font-medium flex items-center gap-x-3"
+          className="bg-primary px-4 py-3 text-white rounded-md font-medium flex items-center gap-x-3 disabled:bg-primary/[0.85]"
           type="button"
           onClick={handleEnablePixelPerfect}
+          disabled={!enableControlNet}
         >
           Enable Pixel Perfect ?{" "}
           <span
@@ -37,29 +38,6 @@ const ControlNet = (props) => {
           ></span>
         </button>
       </div>
-      {/* <ControlNetArgCard
-        module={module}
-        model={model}
-        setModel={onChange}
-        setModule={onChange}
-        weight={weight}
-        setWeight={onChange}
-        guidanceStart={guidanceStart}
-        setGuidanceStart={onChange}
-        guidanceEnd={guidanceEnd}
-        setGuidanceEnd={onChange}
-        addControlnetArg={addControlnetArg}
-        removeControlnetArg={removeControlnetArg}
-        previewImage={previewImage}
-        imageOnChange={imageOnChange}
-        loading={loading}
-        imageName="argOneImage"
-        moduleName="argOneModule"
-        modelName="argOneModelName"
-        weightName="argOneWeight"
-        guidanceStartName="argOneGuidanceStart"
-        guidanceEndName="argOneGuidanceEndName"
-      /> */}
       {children}
     </div>
   );

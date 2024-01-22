@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import EnableHr from "./components/EnableHr";
 import FileImageInput from "./components/FileImageInput";
 import NumberInput from "./components/NumberInput";
@@ -41,9 +41,6 @@ const App = () => {
   const [hrScale, setHrScale] = useState(1.2);
   const [hrUpscaler, setHrUpscaler] = useState("Latent (nearest-exact)");
   const [hrSecondPassSteps, setHrSecondPassSteps] = useState(15);
-  // const [module, setModule] = useState("lineart_standard");
-  // const [model, setModel] = useState("control_v11p_sd15_lineart");
-  // const [weight, setWeight] = useState(0.75);
 
   //= Create JSON File
   const [jsonFile, setJsonFile] = useState({});
@@ -51,52 +48,47 @@ const App = () => {
   //= ControlNet Area
   const [enableControlNet, setEnableControlNet] = useState(false);
   const [enablePixelPerfect, setEnablePixelPerfect] = useState(false);
-  const [controlnetArgArr, setControlnetArgArr] = useState([]);
+  const [controlNetArgArr, setControlNetArgArr] = useState([]);
   //= ControlTet Arg One inputs
-  const [controlNetArgOneObj, setControlNetArgOneObj] = useState({
-    argOneModule: "lineart_standard",
-    argOneModel: "control_v11p_sd15_lineart",
-    argOneWeight: Number(0.75),
-    argOneGuidanceStart: Number(0.2),
-    argOneGuidanceEnd: Number(0.9),
+  const [argumentListArr, setArgumentListArr] = useState([]);
+  const [controlNetArg, setControlNetArg] = useState({
+    module: "lineart_standard",
+    model: "control_v11p_sd15_lineart",
+    weight: Number(0.75),
+    guidance_start: Number(0.2),
+    guidance_end: Number(0.9),
   });
 
-  const handleControlNetOneChange = (e) => {
+  const handleOnChangArgument = (e) => {
     const { name, value } = e.target;
-    setControlNetArgOneObj((prevData) => ({
+    setControlNetArg((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleAddControlNetOne = () => {
-    setControlnetArgArr((prev) => [
-      ...prev,
-      {
-        module: controlNetArgOneObj?.argOneModule,
-        model: controlNetArgOneObj?.argOneModel,
-        weight: controlNetArgOneObj?.argOneWeight,
-        guidance_start: controlNetArgOneObj?.argOneGuidanceStart,
-        guidance_end: controlNetArgOneObj?.argOneGuidanceEnd,
-      },
-    ]);
+  let argObj = {
+    module: controlNetArg?.module,
+    model: controlNetArg?.model,
+    weight: Number(controlNetArg?.weight),
+    guidance_start: Number(controlNetArg?.guidance_start),
+    guidance_end: Number(controlNetArg?.guidance_end),
   };
 
-  const handleRemoveControlNetItem = (indexId) => {
-    const newControlNetArgArr = controlnetArgArr.filter(
+  const handleAddArgument = () => {
+    setControlNetArgArr((prev) => [
+      ...prev,
+      { ...argObj, cardImage: previewImage },
+    ]);
+    setPreviewImage({ images: "" });
+  };
+
+  const handleRemoveArgument = (indexId) => {
+    const newControlNetArgArr = controlNetArgArr.filter(
       (_, i) => indexId !== i
     );
-    setControlnetArgArr(newControlNetArgArr);
+    setControlNetArgArr(newControlNetArgArr);
   };
-
-  //= ControlTet Arg Two inputs
-  const [controlNetArgTwoObj, setControlNetArgTwoObj] = useState({
-    argTwoModule: "lineart_standard",
-    argTwoModel: "control_v11p_sd15_lineart",
-    argTwoWeight: Number(0.5),
-    argTwoGuidanceStart: Number(0),
-    argTwoGuidanceEnd: Number(0.45),
-  });
 
   //= Default Value Of jSON file
   useEffect(() => {
@@ -120,7 +112,7 @@ const App = () => {
         alwayson_scripts: enableControlNet
           ? {
               controlnet: {
-                args: controlnetArgArr,
+                args: controlNetArgArr,
               },
             }
           : {},
@@ -141,28 +133,29 @@ const App = () => {
     hrScale,
     hrUpscaler,
     hrSecondPassSteps,
-    controlnetArgArr,
+    controlNetArgArr,
     enableControlNet,
     enablePixelPerfect,
   ]);
 
   //= Response Image Preview
   const [outputImage, setOutputImage] = useState(
-    "https://placehold.co/700x500?text=Placeholder+output+image"
+    "https://placehold.co/700x500?text=Output+Image+Shown+Here"
   );
 
   //== Image Preview
-  const [previewImage, setPreviewImage] = useState("");
+  const [previewImage, setPreviewImage] = useState({});
   const [uploadImage, setUploadImage] = useState([]);
-  const changePreviewImage = (evt) => {
-    const { name } = evt.target;
+  const changePreviewImage = (evt, fieldName) => {
     const file = evt.target.files[0];
-    console.log(file);
     if (file) {
-      setPreviewImage(URL.createObjectURL(file));
-      setUploadImage((prev) => [...prev, file]);
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImage((prev) => ({ ...prev, [fieldName]: previewUrl }));
+      // setUploadImage((prev) => [...prev, file]);
     }
   };
+
+  console.log(uploadImage);
 
   //= Submit form json and images
   const handleSubmit = async (e) => {
@@ -212,16 +205,17 @@ const App = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container my-6">
       <div className="md:flex md:gap-8 md:items-start">
         <div className="md:hidden">
           <OutputResult
             outputImage={outputImage}
             processTime={processTime}
             loading={loading}
+            imageName="img2Img"
           />
         </div>
-        <div className="bg-white p-3 md:p-6 rounded my-6 md:w-3/5 shadow-md shadow-slate-300">
+        <div className="bg-white p-3 md:p-5 rounded my-6 md:w-3/5 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-x-4">
               <div className="w-1/2">
@@ -260,9 +254,10 @@ const App = () => {
               <div className="w-1/2 mb-4">
                 <h3 className="font-medium mb-3">Select image:</h3>
                 <FileImageInput
-                  previewImage={previewImage[0]}
-                  onChange={changePreviewImage}
-                  loading={loading}
+                  previewImage={previewImage.img2img}
+                  onChange={(e) => changePreviewImage(e, "img2img")}
+                  disabled={loading}
+                  deletePreviewImage={() => setPreviewImage("")}
                 />
               </div>
             ) : null}
@@ -357,29 +352,37 @@ const App = () => {
                   setEnablePixelPerfect(!enablePixelPerfect)
                 }
               >
-                <ArgumentCard />
+                <div className="grid grid-cols-1 gap-4 mt-6">
+                  {controlNetArgArr &&
+                    controlNetArgArr?.map((item, i) => (
+                      <Fragment key={i}>
+                        <ArgumentCard
+                          cardImg={item?.cardImage?.images}
+                          deleteArgumentCard={() => handleRemoveArgument(i)}
+                          weight={item?.weight}
+                          module={item?.module}
+                          model={item?.model}
+                          guidanceStart={item?.guidance_start}
+                          guidanceEnd={item?.guidance_end}
+                        />
+                      </Fragment>
+                    ))}
+                </div>
                 <ControlNetArgForm
-                  module={controlNetArgOneObj?.argOneModule}
-                  model={controlNetArgOneObj?.argOneModel}
-                  setModel={handleControlNetOneChange}
-                  setModule={handleControlNetOneChange}
-                  weight={controlNetArgOneObj?.argOneWeight}
-                  setWeight={handleControlNetOneChange}
-                  guidanceStart={controlNetArgOneObj?.argOneGuidanceStart}
-                  setGuidanceStart={handleControlNetOneChange}
-                  guidanceEnd={controlNetArgOneObj?.argOneGuidanceEnd}
-                  setGuidanceEnd={handleControlNetOneChange}
-                  addControlnetArg={handleAddControlNetOne}
-                  removeControlnetArg={() => handleRemoveControlNetItem(0)}
-                  previewImage={previewImage}
-                  imageOnChange={changePreviewImage}
-                  loading={loading}
-                  imageName="argOneImage"
-                  moduleName="argOneModule"
-                  modelName="argOneModel"
-                  weightName="argOneWeight"
-                  guidanceStartName="argOneGuidanceStart"
-                  guidanceEndName="argOneGuidanceEnd"
+                  module={controlNetArg?.module}
+                  model={controlNetArg?.model}
+                  guidanceStart={controlNetArg?.guidance_start}
+                  weight={controlNetArg?.weight}
+                  guidanceEnd={controlNetArg?.guidance_end}
+                  setWeight={handleOnChangArgument}
+                  setModel={handleOnChangArgument}
+                  setModule={handleOnChangArgument}
+                  setGuidanceStart={handleOnChangArgument}
+                  setGuidanceEnd={handleOnChangArgument}
+                  previewImage={previewImage?.images}
+                  imageOnChange={(e) => changePreviewImage(e, "images")}
+                  disabled={!enableControlNet || loading}
+                  handleAddItem={handleAddArgument}
                 />
               </ControlNet>
             </div>

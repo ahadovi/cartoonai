@@ -9,8 +9,8 @@ const OutputResult = (props) => {
   };
   return (
     <>
-      <div className="bg-white p-6 rounded mt-6 shadow-md shadow-slate-300">
-        <h3 className="text-xl font-medium mb-3">Output result Image:</h3>
+      <div className="bg-white p-6 rounded-md mt-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+        <h3 className="text-xl font-medium mb-3">Output Result Image:</h3>
         <img
           src={outputImage}
           alt="response image"
@@ -18,11 +18,11 @@ const OutputResult = (props) => {
           className="max-w-full h-auto rounded"
         />
       </div>
-      <div className="bg-white px-6 py-4 rounded mt-6 shadow-md shadow-slate-300 flex items-center justify-between">
+      <div className="bg-white px-6 py-4 rounded-md mt-6 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-between">
         <div className="">
           <span className="font-medium">Processing Time:</span>
-          <span className="rounded-full bg-green-600 text-white text-base inline-block px-3 py-1.5 leading-none ml-3">
-            {processTime} sec
+          <span className="rounded-full bg-secondary text-base inline-block px-3 py-1.5 leading-none ml-3">
+            {processTime} <small>sec</small>
           </span>
         </div>
 

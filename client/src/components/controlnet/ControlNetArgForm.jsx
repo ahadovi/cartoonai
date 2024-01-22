@@ -1,8 +1,6 @@
-import { faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
 import { modelData, moduleData } from "../../constant/optionDatas";
-import cn from "../../utils";
 import FileImageInput from "../FileImageInput";
 import RangeInput from "../RangeInput";
 import SelectInput from "../SelectInput";
@@ -18,44 +16,28 @@ const ControlNetArgForm = (props) => {
     setGuidanceStart,
     guidanceEnd,
     setGuidanceEnd,
-    addControlnetArg,
-    removeControlnetArg,
+    handleAddItem,
     previewImage,
     imageOnChange,
-    loading,
-    imageName,
-    moduleName,
-    modelName,
-    weightName,
-    guidanceStartName,
-    guidanceEndName,
     disabled,
+    deletePreviewImage,
   } = props;
-  const [addItem, setAddItem] = useState(true);
-  const handleSetItem = () => {
-    setAddItem(!addItem);
-    if (addItem) {
-      addControlnetArg();
-    } else {
-      removeControlnetArg();
-    }
-  };
+
   return (
     <div className="p-4 rounded-md bg-navLink mt-5">
       <div className="md:flex md:gap-6 md:items-start">
-        <div className="w-full">
+        <div className="w-full mb-4">
           <h3 className="font-medium mb-3">Select image:</h3>
           <FileImageInput
             previewImage={previewImage}
             onChange={imageOnChange}
-            loading={loading}
-            imageName={imageName}
             disabled={disabled}
+            deletePreviewImage={deletePreviewImage}
           />
         </div>
         <div className="w-full">
           <SelectInput
-            name={moduleName}
+            name="module"
             label="Preprocessor Module"
             optiondata={moduleData}
             value={module}
@@ -63,7 +45,7 @@ const ControlNetArgForm = (props) => {
             disabled={disabled}
           />
           <SelectInput
-            name={modelName}
+            name="model"
             label="Controlnet Model"
             optiondata={modelData}
             value={model}
@@ -72,7 +54,7 @@ const ControlNetArgForm = (props) => {
           />
           <RangeInput
             label="Weight"
-            name={weightName}
+            name="weight"
             shownvalue={weight}
             value={weight}
             onChange={setWeight}
@@ -82,7 +64,7 @@ const ControlNetArgForm = (props) => {
           />
           <RangeInput
             label="Guidance Start"
-            name={guidanceStartName}
+            name="guidance_start"
             shownvalue={guidanceStart}
             value={guidanceStart}
             onChange={setGuidanceStart}
@@ -92,7 +74,7 @@ const ControlNetArgForm = (props) => {
           />
           <RangeInput
             label="Guidance End"
-            name={guidanceEndName}
+            name="guidance_end"
             shownvalue={guidanceEnd}
             value={guidanceEnd}
             onChange={setGuidanceEnd}
@@ -101,16 +83,12 @@ const ControlNetArgForm = (props) => {
             disabled={disabled}
           />
           <button
-            className={cn(
-              "bg-primary px-3 py-2 text-white rounded-md font-medium flex items-center gap-x-1.5 justify-center ml-auto",
-              !addItem && "bg-red-700"
-            )}
-            onClick={handleSetItem}
+            className="bg-primary px-3 py-2 text-white rounded-md font-medium flex items-center gap-x-1.5 justify-center ml-auto"
+            onClick={handleAddItem}
             type="button"
             disabled={disabled}
           >
-            <FontAwesomeIcon icon={addItem ? faPlus : faTrashAlt} />{" "}
-            {addItem ? "Add" : "Remove"}
+            <FontAwesomeIcon icon={faPlus} /> Add
           </button>
         </div>
       </div>
