@@ -8,8 +8,9 @@ import RangeInput from "./components/RangeInput";
 import Seed from "./components/Seed";
 import SelectInput from "./components/SelectInput";
 import TextAreaInput from "./components/TextAreaInput";
+import ArgumentCard from "./components/controlnet/ArgumentCard";
 import ControlNet from "./components/controlnet/ControlNet";
-import ControlNetArgCard from "./components/controlnet/ControlNetArgCard";
+import ControlNetArgForm from "./components/controlnet/ControlNetArgForm";
 import {
   interfaceTypeData,
   modelNameData,
@@ -96,57 +97,6 @@ const App = () => {
     argTwoGuidanceStart: Number(0),
     argTwoGuidanceEnd: Number(0.45),
   });
-
-  const handleControlNetTwoChange = (e) => {
-    const { name, value } = e.target;
-    setControlNetArgTwoObj((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleAddControlNetTwo = () => {
-    setControlnetArgArr((prev) => [
-      ...prev,
-      {
-        module: controlNetArgTwoObj?.argTwoModule,
-        model: controlNetArgTwoObj?.argTwoModel,
-        weight: controlNetArgTwoObj?.argTwoWeight,
-        guidance_start: controlNetArgTwoObj?.argTwoGuidanceStart,
-        guidance_end: controlNetArgTwoObj?.argTwoGuidanceEnd,
-      },
-    ]);
-  };
-
-  //= ControlTet Arg Three inputs
-  const [controlNetArgThreeObj, setControlNetArgThreeObj] = useState({
-    argThreeModule: "lineart_standard",
-    argThreeModel: "control_v11p_sd15_lineart",
-    argThreeWeight: Number(1.25),
-    argThreeGuidanceStart: Number(0),
-    argThreeGuidanceEnd: Number(0.12),
-  });
-
-  const handleControlNetThreeChange = (e) => {
-    const { name, value } = e.target;
-    setControlNetArgThreeObj((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleAddControlNetThree = () => {
-    setControlnetArgArr((prev) => [
-      ...prev,
-      {
-        module: controlNetArgThreeObj?.argThreeModule,
-        model: controlNetArgThreeObj?.argThreeModel,
-        weight: controlNetArgThreeObj?.argThreeWeight,
-        guidance_start: controlNetArgThreeObj?.argThreeGuidanceStart,
-        guidance_end: controlNetArgThreeObj?.argThreeGuidanceEnd,
-      },
-    ]);
-  };
 
   //= Default Value Of jSON file
   useEffect(() => {
@@ -261,9 +211,6 @@ const App = () => {
     }
   };
 
-  // console.log(uploadImage, previewImage);
-  console.log(controlnetArgArr);
-
   return (
     <div className="container">
       <div className="md:flex md:gap-8 md:items-start">
@@ -313,7 +260,7 @@ const App = () => {
               <div className="w-1/2 mb-4">
                 <h3 className="font-medium mb-3">Select image:</h3>
                 <FileImageInput
-                  previewImage={previewImages[0]}
+                  previewImage={previewImage[0]}
                   onChange={changePreviewImage}
                   loading={loading}
                 />
@@ -379,7 +326,7 @@ const App = () => {
                 <RangeInput
                   label="Denoising Strength"
                   value={Number(denoisingStrength)}
-                  shownValue={Number(denoisingStrength)}
+                  shownvalue={Number(denoisingStrength)}
                   name="denoising_strength"
                   min={0}
                   max={1}
@@ -410,7 +357,8 @@ const App = () => {
                   setEnablePixelPerfect(!enablePixelPerfect)
                 }
               >
-                <ControlNetArgCard
+                <ArgumentCard />
+                <ControlNetArgForm
                   module={controlNetArgOneObj?.argOneModule}
                   model={controlNetArgOneObj?.argOneModel}
                   setModel={handleControlNetOneChange}
@@ -432,53 +380,6 @@ const App = () => {
                   weightName="argOneWeight"
                   guidanceStartName="argOneGuidanceStart"
                   guidanceEndName="argOneGuidanceEnd"
-                />
-                <ControlNetArgCard
-                  module={controlNetArgTwoObj?.argTwoModule}
-                  model={controlNetArgTwoObj?.argTwoModel}
-                  setModel={handleControlNetTwoChange}
-                  setModule={handleControlNetTwoChange}
-                  weight={controlNetArgTwoObj?.argTwoWeight}
-                  setWeight={handleControlNetTwoChange}
-                  guidanceStart={controlNetArgTwoObj?.argTwoGuidanceStart}
-                  setGuidanceStart={handleControlNetTwoChange}
-                  guidanceEnd={controlNetArgTwoObj?.argTwoGuidanceEnd}
-                  setGuidanceEnd={handleControlNetTwoChange}
-                  addControlnetArg={handleAddControlNetTwo}
-                  removeControlnetArg={() => handleRemoveControlNetItem(1)}
-                  previewImage={previewImage}
-                  imageOnChange={changePreviewImage}
-                  loading={loading}
-                  imageName="argTwoImage"
-                  moduleName="argTwoModule"
-                  modelName="argTwoModel"
-                  weightName="argTwoWeight"
-                  guidanceStartName="argTwoGuidanceStart"
-                  guidanceEndName="argTwoGuidanceEnd"
-                />
-
-                <ControlNetArgCard
-                  module={controlNetArgThreeObj?.argThreeModule}
-                  model={controlNetArgThreeObj?.argThreeModel}
-                  setModel={handleControlNetThreeChange}
-                  setModule={handleControlNetThreeChange}
-                  weight={controlNetArgThreeObj?.argThreeWeight}
-                  setWeight={handleControlNetThreeChange}
-                  guidanceStart={controlNetArgThreeObj?.argThreeGuidanceStart}
-                  setGuidanceStart={handleControlNetThreeChange}
-                  guidanceEnd={controlNetArgThreeObj?.argThreeGuidanceEnd}
-                  setGuidanceEnd={handleControlNetThreeChange}
-                  addControlnetArg={handleAddControlNetThree}
-                  removeControlnetArg={() => handleRemoveControlNetItem(2)}
-                  // previewImage={previewImage}
-                  // imageOnChange={imageOnChange}
-                  // loading={loading}
-                  imageName="argThreeImage"
-                  moduleName="argThreeModule"
-                  modelName="argThreeModel"
-                  weightName="argThreeWeight"
-                  guidanceStartName="argThreeGuidanceStart"
-                  guidanceEndName="argThreeGuidanceEnd"
                 />
               </ControlNet>
             </div>

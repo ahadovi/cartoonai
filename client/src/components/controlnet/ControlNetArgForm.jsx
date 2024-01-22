@@ -6,7 +6,7 @@ import cn from "../../utils";
 import FileImageInput from "../FileImageInput";
 import RangeInput from "../RangeInput";
 import SelectInput from "../SelectInput";
-const ControlNetArgCard = (props) => {
+const ControlNetArgForm = (props) => {
   const {
     module,
     model,
@@ -29,6 +29,7 @@ const ControlNetArgCard = (props) => {
     weightName,
     guidanceStartName,
     guidanceEndName,
+    disabled,
   } = props;
   const [addItem, setAddItem] = useState(true);
   const handleSetItem = () => {
@@ -49,6 +50,7 @@ const ControlNetArgCard = (props) => {
             onChange={imageOnChange}
             loading={loading}
             imageName={imageName}
+            disabled={disabled}
           />
         </div>
         <div className="w-full">
@@ -58,6 +60,7 @@ const ControlNetArgCard = (props) => {
             optiondata={moduleData}
             value={module}
             onChange={setModule}
+            disabled={disabled}
           />
           <SelectInput
             name={modelName}
@@ -65,33 +68,37 @@ const ControlNetArgCard = (props) => {
             optiondata={modelData}
             value={model}
             onChange={setModel}
+            disabled={disabled}
           />
           <RangeInput
             label="Weight"
             name={weightName}
-            shownValue={weight}
+            shownvalue={weight}
             value={weight}
             onChange={setWeight}
             min={0}
             max={2}
+            disabled={disabled}
           />
           <RangeInput
             label="Guidance Start"
             name={guidanceStartName}
-            shownValue={guidanceStart}
+            shownvalue={guidanceStart}
             value={guidanceStart}
             onChange={setGuidanceStart}
             min={0}
             max={1}
+            disabled={disabled}
           />
           <RangeInput
             label="Guidance End"
             name={guidanceEndName}
-            shownValue={guidanceEnd}
+            shownvalue={guidanceEnd}
             value={guidanceEnd}
             onChange={setGuidanceEnd}
             min={0}
             max={1}
+            disabled={disabled}
           />
           <button
             className={cn(
@@ -100,6 +107,7 @@ const ControlNetArgCard = (props) => {
             )}
             onClick={handleSetItem}
             type="button"
+            disabled={disabled}
           >
             <FontAwesomeIcon icon={addItem ? faPlus : faTrashAlt} />{" "}
             {addItem ? "Add" : "Remove"}
@@ -110,4 +118,4 @@ const ControlNetArgCard = (props) => {
   );
 };
 
-export default ControlNetArgCard;
+export default ControlNetArgForm;

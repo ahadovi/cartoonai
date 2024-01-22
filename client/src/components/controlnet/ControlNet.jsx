@@ -8,7 +8,7 @@ const ControlNet = (props) => {
     children,
   } = props;
   return (
-    <div className="p-3 border-2 border-[#D6CC99] rounded-md mt-5">
+    <div className="p-3 border-2 border-secondary rounded-md mt-5">
       <div className="flex items-center gap-x-4">
         <button
           className="bg-primary px-4 py-3 text-white rounded-md font-medium flex items-center gap-x-3"
@@ -19,7 +19,7 @@ const ControlNet = (props) => {
           <span
             className={cn(
               "w-5 h-5 bg-white inline-block rounded",
-              enableControlNet && "bg-green-400"
+              enableControlNet && "bg-activeCheck"
             )}
           ></span>
         </button>
@@ -32,7 +32,7 @@ const ControlNet = (props) => {
           <span
             className={cn(
               "w-5 h-5 bg-white inline-block rounded",
-              enablePixelPerfect && "bg-green-400"
+              enablePixelPerfect && "bg-activeCheck"
             )}
           ></span>
         </button>

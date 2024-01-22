@@ -33,6 +33,8 @@ export default {
         navLink: "#f6f6f7",
         primary: "#1D2B53",
         textColor: "#3c3c43",
+        secondary: "#D6CC99",
+        activeCheck: "#E48F45",
       },
       animation: {},
       keyframes: {},

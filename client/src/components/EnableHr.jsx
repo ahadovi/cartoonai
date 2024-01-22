@@ -25,7 +25,7 @@ const EnableHr = (props) => {
         <span
           className={cn(
             "w-5 h-5 bg-white inline-block rounded",
-            hrEnable && "bg-green-400"
+            hrEnable && "bg-activeCheck"
           )}
         ></span>
       </button>
@@ -37,7 +37,7 @@ const EnableHr = (props) => {
               label="Hr Scale"
               name="hr_scale"
               value={Number(hrScale)}
-              shownValue={Number(hrScale)}
+              shownvalue={Number(hrScale)}
               onChange={setHrScale}
               disabled={!hrEnable}
               min={0}
