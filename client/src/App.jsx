@@ -45,12 +45,23 @@ const App = () => {
   //= Create JSON File
   const [jsonFile, setJsonFile] = useState({});
 
+  //== Image Preview
+  const [previewImage, setPreviewImage] = useState({});
+  const [uploadImage, setUploadImage] = useState([]);
+  const changePreviewImage = (evt, fieldName) => {
+    const file = evt.target.files[0];
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewImage((prev) => ({ ...prev, [fieldName]: previewUrl }));
+      // setUploadImage((prev) => [...prev, file]);
+    }
+  };
+
   //= ControlNet Area
   const [enableControlNet, setEnableControlNet] = useState(false);
   const [enablePixelPerfect, setEnablePixelPerfect] = useState(false);
   const [controlNetArgArr, setControlNetArgArr] = useState([]);
   //= ControlTet Arg One inputs
-  const [argumentListArr, setArgumentListArr] = useState([]);
   const [controlNetArg, setControlNetArg] = useState({
     module: "lineart_standard",
     model: "control_v11p_sd15_lineart",
@@ -67,19 +78,19 @@ const App = () => {
     }));
   };
 
-  let argObj = {
-    module: controlNetArg?.module,
-    model: controlNetArg?.model,
-    weight: Number(controlNetArg?.weight),
-    guidance_start: Number(controlNetArg?.guidance_start),
-    guidance_end: Number(controlNetArg?.guidance_end),
-  };
-
   const handleAddArgument = () => {
     setControlNetArgArr((prev) => [
       ...prev,
-      { ...argObj, cardImage: previewImage },
+      {
+        module: controlNetArg?.module,
+        model: controlNetArg?.model,
+        weight: Number(controlNetArg?.weight),
+        guidance_start: Number(controlNetArg?.guidance_start),
+        guidance_end: Number(controlNetArg?.guidance_end),
+        cardImage: previewImage,
+      },
     ]);
+
     setPreviewImage({ images: "" });
   };
 
@@ -112,7 +123,7 @@ const App = () => {
         alwayson_scripts: enableControlNet
           ? {
               controlnet: {
-                args: controlNetArgArr,
+                args: controlNetArgArr.map(({ cardImage, ...rest }) => rest),
               },
             }
           : {},
@@ -143,19 +154,7 @@ const App = () => {
     "https://placehold.co/700x500?text=Output+Image+Shown+Here"
   );
 
-  //== Image Preview
-  const [previewImage, setPreviewImage] = useState({});
-  const [uploadImage, setUploadImage] = useState([]);
-  const changePreviewImage = (evt, fieldName) => {
-    const file = evt.target.files[0];
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setPreviewImage((prev) => ({ ...prev, [fieldName]: previewUrl }));
-      // setUploadImage((prev) => [...prev, file]);
-    }
-  };
-
-  console.log(uploadImage);
+  console.log(jsonFile);
 
   //= Submit form json and images
   const handleSubmit = async (e) => {
@@ -381,6 +380,7 @@ const App = () => {
                   setGuidanceEnd={handleOnChangArgument}
                   previewImage={previewImage?.images}
                   imageOnChange={(e) => changePreviewImage(e, "images")}
+                  deletePreviewImage={() => setPreviewImage({ images: "" })}
                   disabled={!enableControlNet || loading}
                   handleAddItem={handleAddArgument}
                 />
