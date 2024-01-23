@@ -72,7 +72,7 @@ const App = () => {
 
   const handleOnInputChange = (e) => {
     const { name, value } = e.target;
-    setArgItem((prevData) => ({
+    setInputData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
