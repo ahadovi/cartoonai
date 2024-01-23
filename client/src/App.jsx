@@ -73,34 +73,56 @@ const App = () => {
   //= Create JSON File
   const [jsonFile, setJsonFile] = useState({});
   useEffect(() => {
-    setJsonFile({
-      inference_type: inputData?.inference_type,
-      model_name: inputData?.model_name,
-      vae_name: inputData?.vae_name,
-      payload: {
-        prompt: inputData?.prompt,
-        negative_prompt: inputData?.negative_prompt,
-        seed: Number(inputData?.seed),
-        steps: Number(inputData?.steps),
-        cfg_scale: Number(inputData?.cfg_scale),
-        sampler_name: inputData?.sampler_name,
-        denoising_strength: Number(inputData?.denoising_strength),
-        enable_hr: hrEnable,
-        hr_scale: Number(inputData?.hr_scale),
-        hr_upscaler: inputData?.hr_upscaler,
-        hr_second_pass_steps: Number(inputData?.hr_second_pass_steps),
-        alwayson_scripts: enableControlNet
-          ? {
-              controlnet: {
-                args: controlNetArgArr,
-              },
-            }
-          : {},
-      },
-    });
+    if (inputData?.inference_type === "img2img") {
+      setJsonFile({
+        inference_type: inputData?.inference_type,
+        model_name: inputData?.model_name,
+        vae_name: inputData?.vae_name,
+        payload: {
+          prompt: inputData?.prompt,
+          negative_prompt: inputData?.negative_prompt,
+          seed: Number(inputData?.seed),
+          steps: Number(inputData?.steps),
+          cfg_scale: Number(inputData?.cfg_scale),
+          sampler_name: inputData?.sampler_name,
+          denoising_strength: Number(inputData?.denoising_strength),
+          alwayson_scripts: enableControlNet
+            ? {
+                controlnet: {
+                  args: controlNetArgArr,
+                },
+              }
+            : {},
+        },
+      });
+    } else {
+      setJsonFile({
+        inference_type: inputData?.inference_type,
+        model_name: inputData?.model_name,
+        vae_name: inputData?.vae_name,
+        payload: {
+          prompt: inputData?.prompt,
+          negative_prompt: inputData?.negative_prompt,
+          seed: Number(inputData?.seed),
+          steps: Number(inputData?.steps),
+          cfg_scale: Number(inputData?.cfg_scale),
+          sampler_name: inputData?.sampler_name,
+          denoising_strength: Number(inputData?.denoising_strength),
+          enable_hr: hrEnable,
+          hr_scale: Number(inputData?.hr_scale),
+          hr_upscaler: inputData?.hr_upscaler,
+          hr_second_pass_steps: Number(inputData?.hr_second_pass_steps),
+          alwayson_scripts: enableControlNet
+            ? {
+                controlnet: {
+                  args: controlNetArgArr,
+                },
+              }
+            : {},
+        },
+      });
+    }
   }, [inputData, hrEnable, controlNetArgArr, enableControlNet]);
-
-  console.log(jsonFile);
 
   //= Response Image Preview
   const [outputImage, setOutputImage] = useState(
@@ -292,16 +314,18 @@ const App = () => {
               </div>
             </div>
 
-            <EnableHr
-              handleEnableHr={() => setHrEnable(!hrEnable)}
-              hrEnable={hrEnable}
-              hrScale={inputData?.hr_scale}
-              setHrScale={handleOnInputChange}
-              hrSecondPassSteps={inputData?.hr_second_pass_steps}
-              setHrSecondPassSteps={handleOnInputChange}
-              hrUpscaler={inputData?.hr_upscaler}
-              setHrUpscaler={handleOnInputChange}
-            />
+            {inputData?.inference_type !== "img2img" ? (
+              <EnableHr
+                handleEnableHr={() => setHrEnable(!hrEnable)}
+                hrEnable={hrEnable}
+                hrScale={inputData?.hr_scale}
+                setHrScale={handleOnInputChange}
+                hrSecondPassSteps={inputData?.hr_second_pass_steps}
+                setHrSecondPassSteps={handleOnInputChange}
+                hrUpscaler={inputData?.hr_upscaler}
+                setHrUpscaler={handleOnInputChange}
+              />
+            ) : null}
 
             <div className="my-6">
               <ControlNet

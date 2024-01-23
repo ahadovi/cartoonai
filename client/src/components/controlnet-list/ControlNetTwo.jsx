@@ -60,11 +60,11 @@ const ControlNetTwo = () => {
         model={argItem?.model}
         setModel={handleOnChange}
         setModule={handleOnChange}
-        weight={argItem?.weight}
+        weight={Number(argItem?.weight)}
         setWeight={handleOnChange}
-        guidanceStart={argItem?.guidance_start}
+        guidanceStart={Number(argItem?.guidance_start)}
         setGuidanceStart={handleOnChange}
-        guidanceEnd={argItem?.guidance_end}
+        guidanceEnd={Number(argItem?.guidance_end)}
         setGuidanceEnd={handleOnChange}
         previewImage={previewImage}
         imageOnChange={argImageChange}
