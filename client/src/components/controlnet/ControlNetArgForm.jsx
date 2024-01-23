@@ -1,6 +1,5 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { modelData, moduleData } from "../../constant/optionDatas";
+import cn from "../../utils";
 import FileImageInput from "../FileImageInput";
 import RangeInput from "../RangeInput";
 import SelectInput from "../SelectInput";
@@ -16,11 +15,14 @@ const ControlNetArgForm = (props) => {
     setGuidanceStart,
     guidanceEnd,
     setGuidanceEnd,
-    handleAddItem,
     previewImage,
     imageOnChange,
     disabled,
-    deletePreviewImage,
+    enableArgument,
+    handleEnableArgument,
+    enablePixelPerfect,
+    handleEnablePixelPerfect,
+    disableAddArgBtn,
   } = props;
 
   return (
@@ -32,10 +34,39 @@ const ControlNetArgForm = (props) => {
             previewImage={previewImage}
             onChange={imageOnChange}
             disabled={disabled}
-            deletePreviewImage={deletePreviewImage}
           />
         </div>
         <div className="w-full">
+          <div className="flex items-center gap-3 flex-wrap mb-4">
+            <button
+              className="bg-primary px-2.5 py-2 text-white rounded-md font-medium flex items-center gap-x-3 text-sm 2xl:text-base disabled:bg-primary/[0.85]"
+              type="button"
+              onClick={handleEnableArgument}
+              disabled={disableAddArgBtn}
+            >
+              Add Argument ?{" "}
+              <span
+                className={cn(
+                  "w-4 h-4 bg-white inline-block rounded",
+                  enableArgument && "bg-activeCheck"
+                )}
+              ></span>
+            </button>
+            <button
+              className="bg-primary px-2.5 py-2 text-white rounded-md font-medium flex items-center gap-x-3 disabled:bg-primary/[0.85] text-sm 2xl:text-base"
+              type="button"
+              onClick={handleEnablePixelPerfect}
+              disabled={disabled}
+            >
+              Pixel Perfect ?{" "}
+              <span
+                className={cn(
+                  "w-4 h-4 bg-white inline-block rounded",
+                  enablePixelPerfect && "bg-activeCheck"
+                )}
+              ></span>
+            </button>
+          </div>
           <SelectInput
             name="module"
             label="Preprocessor Module"
@@ -82,14 +113,6 @@ const ControlNetArgForm = (props) => {
             max={1}
             disabled={disabled}
           />
-          <button
-            className="bg-primary px-3 py-2 text-white rounded-md font-medium flex items-center gap-x-1.5 justify-center ml-auto"
-            onClick={handleAddItem}
-            type="button"
-            disabled={disabled}
-          >
-            <FontAwesomeIcon icon={faPlus} /> Add
-          </button>
         </div>
       </div>
     </div>

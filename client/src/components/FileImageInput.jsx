@@ -1,9 +1,9 @@
-import { faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import cn from "../utils";
 
 const FileImageInput = (props) => {
-  const { previewImage, onChange, disabled, deletePreviewImage } = props;
+  const { previewImage, onChange, disabled } = props;
   return (
     <label
       className={cn(
@@ -20,19 +20,15 @@ const FileImageInput = (props) => {
         disabled={disabled}
       />
       {previewImage ? (
-        <div className="block relative">
+        <div className="group block relative cursor-pointer">
           <img
             src={previewImage}
             alt="Arg preview"
             className="block max-w-full"
           />
-          <button
-            type="button"
-            className="absolute right-3 top-3 z-10 text-white p-2 rounded bg-red-700 leading-none text-sm"
-            onClick={deletePreviewImage}
-          >
-            <FontAwesomeIcon icon={faTrashAlt} />
-          </button>
+          <span className="absolute inset-0 flex justify-center items-center bg-secondary/[0.75] backdrop-blur-sm font-medium opacity-0 invisible transition-opacity duration-300 group-hover:opacity-100 group-hover:visible">
+            Click to Change Image
+          </span>
         </div>
       ) : (
         <span className="font-medium text-xl md:text-2xl">
