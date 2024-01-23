@@ -10,6 +10,7 @@ const ControlNetOne = () => {
     enableControlNet,
   } = useAppContext();
   const [previewImage, setPreviewImage] = useState("");
+  const [uploadFile, setUploadFile] = useState("");
   const [enableArgument, setEnableArgument] = useState(true);
   const [argItem, setArgItem] = useState({
     module: "lineart_standard",
@@ -32,7 +33,7 @@ const ControlNetOne = () => {
     const file = e.target.files[0];
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
-      setImagesArr((prev) => ({ ...prev, controlnet_1: file }));
+      setUploadFile(file);
     }
   };
 
@@ -42,6 +43,9 @@ const ControlNetOne = () => {
 
     if (enableArgument) {
       setControlNetArgArr((prev) => [...prev, argItem]);
+      if (uploadFile !== "") {
+        setImagesArr((prev) => ({ ...prev, controlnet_1: uploadFile }));
+      }
     } else {
       const newArr = controlNetArgArr?.filter((_, i) => index !== i);
       setControlNetArgArr(newArr);

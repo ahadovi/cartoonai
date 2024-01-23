@@ -19,8 +19,6 @@ const AppProvider = ({ children }) => {
     controlnet_3: "",
   });
 
-  console.log(imagesArr);
-
   const values = {
     controlNetArgArr,
     setControlNetArgArr,

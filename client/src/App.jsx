@@ -26,6 +26,7 @@ const App = () => {
   const {
     enableControlNet,
     setEnableControlNet,
+    imagesArr,
     setImagesArr,
     controlNetArgArr,
   } = useAppContext();
@@ -34,41 +35,22 @@ const App = () => {
   const [processTime, setProcessTime] = useState("00:00");
 
   //== Input State
-  const [inferenceType, setInferenceType] = useState("txt2img");
-  const [modelName, setModelName] = useState("realcartoonPixar_v2.safetensors");
-  const [vaeName, setVaeName] = useState("color101VAE_v1.safetensors");
-  const [prompt, setPrompt] = useState("Flower, blue, <gender>");
-  const [negativePrompt, setNegativePrompt] = useState(
-    "ugly, low resolution, disfigured, low quality, blurry, blur, nsfw, text, watermark, extra eye brew, poorly drawn face, bad, face, fused face, loned face, worst face, extra face, multiple faces, displaces face, poorly drawn dress."
-  );
-  const [seed, setSeed] = useState(1590328071);
-  const [steps, setSteps] = useState(20);
-  const [cfgScale, setCfgScale] = useState(7.5);
-  const [samplerName, setSamplerName] = useState("Euler a");
-  const [denoisingStrength, setDenoisingStrength] = useState(0.7);
-  const [hrScale, setHrScale] = useState(1.2);
-  const [hrUpscaler, setHrUpscaler] = useState("Latent (nearest-exact)");
-  const [hrSecondPassSteps, setHrSecondPassSteps] = useState(15);
-
   const [inputData, setInputData] = useState({
-    inferenceType: "txt2img",
-    modelName: "realcartoonPixar_v2.safetensors",
-    vaeName: "color101VAE_v1.safetensors",
+    inference_type: "txt2img",
+    model_name: "realcartoonPixar_v2.safetensors",
+    vae_name: "color101VAE_v1.safetensors",
     prompt: "Flower, blue, <gender>",
-    negativePrompt:
+    negative_prompt:
       "ugly, low resolution, disfigured, low quality, blurry, blur, nsfw, text, watermark, extra eye brew, poorly drawn face, bad, face, fused face, loned face, worst face, extra face, multiple faces, displaces face, poorly drawn dress.",
     seed: Number(1590328071),
     steps: Number(20),
-    cfgScale: Number(7.5),
-    samplerName: "Euler a",
-    denoisingStrength: Number(0.7),
-    hrScale: Number(1.2),
-    hrUpscaler: "Latent (nearest-exact)",
-    hrSecondPassSteps: Number(15),
+    cfg_scale: Number(7.5),
+    sampler_name: "Euler a",
+    denoising_strength: Number(0.7),
+    hr_scale: Number(1.2),
+    hr_upscaler: "Latent (nearest-exact)",
+    hr_second_pass_steps: Number(15),
   });
-
-  //= Create JSON File
-  const [jsonFile, setJsonFile] = useState({});
 
   const handleOnInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,28 +66,29 @@ const App = () => {
     const file = e.target.files[0];
     if (file) {
       setPreviewImage(URL.createObjectURL(file));
-      setImagesArr((prev) => ({ ...prev, img2img: file }));
+      setImagesArr((prev) => ({ ...prev, img2mg: file }));
     }
   };
 
-  //= Default Value Of jSON file
+  //= Create JSON File
+  const [jsonFile, setJsonFile] = useState({});
   useEffect(() => {
     setJsonFile({
-      inference_type: inferenceType,
-      model_name: modelName,
-      vae_name: vaeName,
+      inference_type: inputData?.inference_type,
+      model_name: inputData?.model_name,
+      vae_name: inputData?.vae_name,
       payload: {
-        prompt: prompt,
-        negative_prompt: negativePrompt,
-        seed: seed,
-        steps: steps,
-        cfg_scale: cfgScale,
-        sampler_name: samplerName,
-        denoising_strength: denoisingStrength,
+        prompt: inputData?.prompt,
+        negative_prompt: inputData?.negative_prompt,
+        seed: Number(inputData?.seed),
+        steps: Number(inputData?.steps),
+        cfg_scale: Number(inputData?.cfg_scale),
+        sampler_name: inputData?.sampler_name,
+        denoising_strength: Number(inputData?.denoising_strength),
         enable_hr: hrEnable,
-        hr_scale: hrScale,
-        hr_upscaler: hrUpscaler,
-        hr_second_pass_steps: hrSecondPassSteps,
+        hr_scale: Number(inputData?.hr_scale),
+        hr_upscaler: inputData?.hr_upscaler,
+        hr_second_pass_steps: Number(inputData?.hr_second_pass_steps),
         alwayson_scripts: enableControlNet
           ? {
               controlnet: {
@@ -115,24 +98,7 @@ const App = () => {
           : {},
       },
     });
-  }, [
-    inferenceType,
-    modelName,
-    vaeName,
-    prompt,
-    negativePrompt,
-    seed,
-    steps,
-    cfgScale,
-    samplerName,
-    denoisingStrength,
-    hrEnable,
-    hrScale,
-    hrUpscaler,
-    hrSecondPassSteps,
-    enableControlNet,
-    controlNetArgArr,
-  ]);
+  }, [inputData, hrEnable, controlNetArgArr, enableControlNet]);
 
   console.log(jsonFile);
 
@@ -153,10 +119,21 @@ const App = () => {
     //= Create Form Data
     const formData = new FormData();
     formData.append("json_data", blob, "sample_json_file.json");
-    if (uploadImage) {
-      for (let i = 0; i < uploadImage.length; i++) {
-        formData.append("image", uploadImage[i]);
-      }
+
+    if (imagesArr?.img2mg !== "") {
+      formData.append("image", imagesArr?.img2mg);
+    }
+
+    if (imagesArr?.controlnet_1 !== "") {
+      formData.append("controlnet_1", imagesArr?.controlnet_1);
+    }
+
+    if (imagesArr?.controlnet_2 !== "") {
+      formData.append("controlnet_2", imagesArr?.controlnet_2);
+    }
+
+    if (imagesArr?.controlnet_3 !== "") {
+      formData.append("controlnet_3", imagesArr?.controlnet_3);
     }
 
     try {
@@ -164,7 +141,7 @@ const App = () => {
         import.meta.env.VITE_POST_API_ENDPOINT,
         formData
       );
-      setOutputImage(`${response?.data["Download link"][0]}`);
+      setOutputImage(`${response?.data["Download link"]}`);
       setLoading(false);
       const endTime = performance.now();
       const requestDuration = endTime - startTime;
@@ -206,8 +183,8 @@ const App = () => {
                 <SelectInput
                   name="inference_type"
                   label="Interface Type"
-                  value={inferenceType}
-                  onChange={(e) => setInferenceType(e.target.value)}
+                  value={inputData?.inference_type}
+                  onChange={handleOnInputChange}
                   optiondata={interfaceTypeData}
                 />
               </div>
@@ -216,8 +193,8 @@ const App = () => {
                   name="model_name"
                   label="Model Name"
                   optiondata={modelNameData}
-                  value={modelName}
-                  onChange={(e) => setModelName(e.target.value)}
+                  value={inputData?.model_name}
+                  onChange={handleOnInputChange}
                 />
               </div>
             </div>
@@ -228,13 +205,13 @@ const App = () => {
                   name="vae_name"
                   label="Vae Name"
                   optiondata={vaeNameData}
-                  value={vaeName}
-                  onChange={(e) => setVaeName(e.target.value)}
+                  value={inputData?.vae_name}
+                  onChange={handleOnInputChange}
                 />
               </div>
             </div>
 
-            {inferenceType === "img2img" ? (
+            {inputData?.inference_type === "img2img" ? (
               <div className="w-1/2 mb-4">
                 <h3 className="font-medium mb-3">Select image:</h3>
                 <FileImageInput
@@ -249,22 +226,24 @@ const App = () => {
               label="Prompt"
               name="prompt"
               placeholder="Enter prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              value={inputData?.prompt}
+              onChange={handleOnInputChange}
             />
 
             <TextAreaInput
               label="Negative Prompt"
               name="negative_prompt"
               placeholder="Enter negative prompt"
-              value={negativePrompt}
-              onChange={(e) => setNegativePrompt(e.target.value)}
+              value={inputData?.negative_prompt}
+              onChange={handleOnInputChange}
             />
 
             <Seed
-              seed={Number(seed)}
-              setSeed={(e) => setSeed(Number(e.target.value))}
-              seedNegativeBtn={() => setSeed(-1)}
+              seed={Number(inputData?.seed)}
+              setSeed={handleOnInputChange}
+              seedNegativeBtn={() =>
+                setInputData((prev) => ({ ...prev, seed: Number(-1) }))
+              }
             />
 
             <div className="flex items-end gap-x-4">
@@ -273,8 +252,8 @@ const App = () => {
                   label="Steps (max: 150)"
                   placeholder="Enter Steps"
                   name="steps"
-                  value={Number(steps)}
-                  onChange={(e) => setSteps(Number(e.target.value))}
+                  value={Number(inputData?.steps)}
+                  onChange={handleOnInputChange}
                   min={1}
                   max={150}
                 />
@@ -284,8 +263,8 @@ const App = () => {
                   label="CFG Scale"
                   placeholder="Enter cfg scale"
                   name="cfg_scale"
-                  value={Number(cfgScale)}
-                  onChange={(e) => setCfgScale(Number(e.target.value))}
+                  value={Number(inputData?.cfg_scale)}
+                  onChange={handleOnInputChange}
                 />
               </div>
             </div>
@@ -296,19 +275,19 @@ const App = () => {
                   label="Sampler Name"
                   name="sampler_name"
                   optiondata={samplerNameData}
-                  value={samplerName}
-                  onChange={(e) => setSamplerName(e.target.value)}
+                  value={inputData?.sampler_name}
+                  onChange={handleOnInputChange}
                 />
               </div>
               <div className="w-1/2">
                 <RangeInput
                   label="Denoising Strength"
-                  value={Number(denoisingStrength)}
-                  shownvalue={Number(denoisingStrength)}
+                  value={Number(inputData?.denoising_strength)}
+                  shownvalue={Number(inputData?.denoising_strength)}
                   name="denoising_strength"
                   min={0}
                   max={1}
-                  onChange={(e) => setDenoisingStrength(Number(e.target.value))}
+                  onChange={handleOnInputChange}
                 />
               </div>
             </div>
@@ -316,14 +295,12 @@ const App = () => {
             <EnableHr
               handleEnableHr={() => setHrEnable(!hrEnable)}
               hrEnable={hrEnable}
-              hrScale={hrScale}
-              setHrScale={(e) => setHrScale(Number(e.target.value))}
-              hrSecondPassSteps={hrSecondPassSteps}
-              setHrSecondPassSteps={(e) =>
-                setHrSecondPassSteps(Number(e.target.value))
-              }
-              hrUpscaler={hrUpscaler}
-              setHrUpscaler={(e) => setHrUpscaler(e.target.value)}
+              hrScale={inputData?.hr_scale}
+              setHrScale={handleOnInputChange}
+              hrSecondPassSteps={inputData?.hr_second_pass_steps}
+              setHrSecondPassSteps={handleOnInputChange}
+              hrUpscaler={inputData?.hr_upscaler}
+              setHrUpscaler={handleOnInputChange}
             />
 
             <div className="my-6">

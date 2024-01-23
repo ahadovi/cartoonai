@@ -15,7 +15,6 @@ const FileImageInput = (props) => {
         type="file"
         className="w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer"
         accept="image/*"
-        required
         onChange={onChange}
         disabled={disabled}
       />
