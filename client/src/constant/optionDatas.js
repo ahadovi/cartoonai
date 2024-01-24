@@ -14,36 +14,46 @@ export const interfaceTypeData = [
 export const modelNameData = [
   {
     id: 11,
-    value: "Deliberate v2",
-    name: "Deliberate v2",
+    value: "Deliberate_v2",
+    name: "Deliberate_v2",
   },
   {
     id: 12,
-    value: "dreamshaper_332BakedVaeClipFix",
-    name: "dreamshaper_332BakedVaeClipFix",
+    value: "aZovyaRPGArtistTools_v4VAE",
+    name: "aZovyaRPGArtistTools_v4VAE",
   },
   {
     id: 13,
+    value: "dreamshaper_332BakedVaeClipFix",
+    name: "dreamshaper_332BakedVaeClipFix0",
+  },
+  {
+    id: 14,
     value: "disneyPixarCartoon_v10",
     name: "disneyPixarCartoon_v10",
   },
   {
-    id: 14,
-    value: "Realistic_Vision_V5",
-    name: "Realistic_Vision_V5",
+    id: 15,
+    value: "Realistic_Vision_V5.1",
+    name: "Realistic_Vision_V5.1",
   },
   {
-    id: 15,
+    id: 16,
     value: "realcartoonPixar_v2",
     name: "realcartoonPixar_v2",
   },
   {
-    id: 16,
+    id: 17,
+    value: "realcartoon3d_v12",
+    name: "realcartoon3d_v12",
+  },
+  {
+    id: 18,
     value: "dreamshaper_8",
     name: "dreamshaper_8",
   },
   {
-    id: 17,
+    id: 19,
     value: "realcartoon3d_v12",
     name: "realcartoon3d_v12",
   },
@@ -78,7 +88,7 @@ export const vaeNameData = [
   {
     id: 116,
     value: "none",
-    name: "none",
+    name: "None",
   },
 ];
 
@@ -86,27 +96,27 @@ export const moduleData = [
   {
     id: 1111,
     value: "Tile_Resample",
-    name: "Tile_Resample",
+    name: "Tile Resample",
   },
   {
     id: 1112,
     value: "lineart_realistic",
-    name: "lineart_realistic",
+    name: "Lineart realistic",
   },
   {
     id: 1113,
     value: "scribble_xdog",
-    name: "scribble_xdog",
+    name: "Scribble Xdog",
   },
   {
     id: 1114,
     value: "lineart_standard",
-    name: "lineart_standard",
+    name: "Lineart Standard (from white bg & black line)",
   },
   {
     id: 1115,
     value: "lineart_coarse",
-    name: "lineart_coarse",
+    name: "Lineart Coarse",
   },
   {
     id: 1116,
@@ -119,32 +129,32 @@ export const modelData = [
   {
     id: 11111,
     value: "control_v11f1e_sd15_tile",
-    name: "control_v11f1e_sd15_tile",
+    name: "Control v11f1e sd15 tile",
   },
   {
     id: 11112,
     value: "control_v11p_sd15_lineart",
-    name: "control_v11p_sd15_lineart",
+    name: "Control v11p sd15 lineart",
   },
   {
     id: 11113,
     value: "control_v11p_sd15_scribble",
-    name: "control_v11p_sd15_scribble",
+    name: "Control v11p sd15 scribble",
   },
   {
     id: 11114,
     value: "control_v11p_sd15_lineart",
-    name: "control_v11p_sd15_lineart",
+    name: "Control v11p sd15 lineart",
   },
   {
     id: 11115,
     value: "control_v11p_sd15_lineart",
-    name: "control_v11p_sd15_lineart",
+    name: "Control v11p sd15 lineart",
   },
   {
     id: 11116,
     value: "control_v11p_sd15_canny",
-    name: "control_v11p_sd15_canny",
+    name: "Control v11p sd15 canny",
   },
 ];
 

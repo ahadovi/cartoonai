@@ -1,4 +1,4 @@
-import { modelData, moduleData } from "../../constant/optionDatas";
+import { moduleData } from "../../constant/optionDatas";
 import cn from "../../utils";
 import FileImageInput from "../FileImageInput";
 import RangeInput from "../RangeInput";
@@ -23,6 +23,7 @@ const ControlNetArgForm = (props) => {
     enablePixelPerfect,
     handleEnablePixelPerfect,
     disableAddArgBtn,
+    filteredModelsArr,
   } = props;
 
   return (
@@ -78,7 +79,7 @@ const ControlNetArgForm = (props) => {
           <SelectInput
             name="model"
             label="Controlnet Model"
-            optiondata={modelData}
+            optiondata={filteredModelsArr}
             value={model}
             onChange={setModel}
             disabled={disabled}

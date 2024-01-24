@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { modelData } from "../../constant/optionDatas";
 import { useAppContext } from "../../providers/AppProvider";
 import ControlNetArgForm from "../controlnet/ControlNetArgForm";
 
@@ -12,6 +13,7 @@ const ControlNetOne = () => {
   const [previewImage, setPreviewImage] = useState("");
   const [uploadFile, setUploadFile] = useState("");
   const [enableArgument, setEnableArgument] = useState(true);
+  const [filteredModels, setFilteredModels] = useState([]);
   const [argItem, setArgItem] = useState({
     module: "lineart_standard",
     model: "control_v11p_sd15_lineart",
@@ -28,6 +30,19 @@ const ControlNetOne = () => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    if (argItem?.module) {
+      const filteredModels = modelData.filter((model) =>
+        model.name.includes(argItem?.module.split("_")[0].toLowerCase())
+      );
+      setFilteredModels(filteredModels);
+
+      if (filteredModels.length > 0) {
+        setArgItem((prev) => ({ ...prev, model: filteredModels[0].value }));
+      }
+    }
+  }, [argItem?.module]);
 
   const argImageChange = (e) => {
     const file = e.target.files[0];
@@ -59,6 +74,7 @@ const ControlNetOne = () => {
         module={argItem?.module}
         model={argItem?.model}
         setModel={handleOnChange}
+        filteredModelsArr={filteredModels}
         setModule={handleOnChange}
         weight={Number(argItem?.weight)}
         setWeight={handleOnChange}

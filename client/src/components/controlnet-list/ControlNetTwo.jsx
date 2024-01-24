@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { modelData } from "../../constant/optionDatas";
 import { useAppContext } from "../../providers/AppProvider";
 import ControlNetArgForm from "../controlnet/ControlNetArgForm";
 
@@ -10,6 +11,7 @@ const ControlNetTwo = () => {
     enableControlNet,
   } = useAppContext();
   const [previewImage, setPreviewImage] = useState("");
+  const [filteredModels, setFilteredModels] = useState([]);
   const [uploadFile, setUploadFile] = useState("");
   const [enableArgument, setEnableArgument] = useState(true);
   const [argItem, setArgItem] = useState({
@@ -28,6 +30,19 @@ const ControlNetTwo = () => {
       [name]: value,
     }));
   };
+
+  useEffect(() => {
+    if (argItem?.module) {
+      const filteredModels = modelData.filter((model) =>
+        model.name.includes(argItem?.module.split("_")[0].toLowerCase())
+      );
+      setFilteredModels(filteredModels);
+
+      if (filteredModels.length > 0) {
+        setArgItem((prev) => ({ ...prev, model: filteredModels[0].value }));
+      }
+    }
+  }, [argItem?.module]);
 
   const argImageChange = (e) => {
     const file = e.target.files[0];
@@ -58,6 +73,7 @@ const ControlNetTwo = () => {
       <ControlNetArgForm
         module={argItem?.module}
         model={argItem?.model}
+        filteredModelsArr={filteredModels}
         setModel={handleOnChange}
         setModule={handleOnChange}
         weight={Number(argItem?.weight)}
