@@ -24,10 +24,11 @@ const ControlNetTwo = () => {
   });
 
   const handleOnChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
+    const numericValue = type === "range" ? parseFloat(value) : value;
     setArgItem((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: numericValue,
     }));
   };
 
